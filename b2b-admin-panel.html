@@ -1,0 +1,1532 @@
+<!doctype html>
+<html lang="bn" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>B2B Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f4; --surface:#ffffff; --surface-2:#eef3f0; --ink:#13211b; --muted:#5c6f66;
+  --line:#dce6e0; --green:#0b3d2c; --green-2:#0f5138; --green-3:#146447; --accent:#1a9e6b;
+  --accent-soft:#e2f4ec; --amber:#b7791f; --amber-soft:#fdf0d5; --red:#b42318; --red-soft:#fdeceb;
+  --blue:#175cd3; --blue-soft:#e8effd; --radius:14px; --shadow:0 1px 2px rgba(11,61,44,.06),0 8px 24px -12px rgba(11,61,44,.18);
+}
+/* Day Mode = default (light). Dark Mode sudhu button diye ON hobe — system dark holeo page nije nije dark hobe na */
+html[data-theme="dark"]{
+  --bg:#0e1512; --surface:#16211c; --surface-2:#1b2a23; --ink:#e8f0ec; --muted:#9db3a8; --line:#26382f; --accent-soft:#123527; --amber-soft:#3a2c10; --red-soft:#3d1713; --blue-soft:#16294d; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+html[data-theme="light"]{ color-scheme:light; }
+.theme-btn[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;font-family:"Hind Siliguri","Manrope",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.view{display:none}
+.view.active{display:block}
+.view-head{margin:0 0 14px}
+.view-head h2{font-family:"Manrope";font-size:20px;margin:0}
+.view-head p{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+
+/* ---------- Layout ---------- */
+.layout{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+.sidebar{background:var(--green);color:#dcefe6;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{min-width:0;padding:22px 26px 90px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- Sidebar ---------- */
+.brand{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-badge{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:7px 12px 7px 8px;border-radius:999px}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:#f2c94c;color:#0b3d2c;display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:12px;letter-spacing:.02em}
+.brand-name{font-family:"Manrope";font-weight:800;font-size:15px;color:#fff;line-height:1.1}
+.brand-sub{font-size:11.5px;color:#a9c9ba;line-height:1.2}
+.menu-label{padding:16px 20px 6px;font-size:11px;letter-spacing:.14em;color:#8fb5a3;font-weight:600}
+.nav{padding:0 12px;display:grid;gap:3px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;text-decoration:none;color:#cfe6da;font-weight:500;font-size:14.5px}
+.nav a svg{width:18px;height:18px;flex:none;opacity:.9}
+.nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav a.active{background:#fff;color:var(--green);font-weight:700}
+.nav a.active svg{opacity:1}
+.nav .count{margin-left:auto;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px}
+.nav a.active .count{background:var(--accent-soft);color:var(--green-2)}
+.side-signal{margin:18px 12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:13px 14px}
+.side-signal h3{margin:0 0 2px;font-size:13.5px;color:#fff;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2ee59d;box-shadow:0 0 0 4px rgba(46,229,157,.18)}
+.dot.off{background:#f97066;box-shadow:0 0 0 4px rgba(249,112,102,.16)}
+.side-signal p{margin:0 0 11px;font-size:12.5px;color:#a9c9ba}
+.side-rows{display:grid;gap:6px;font-size:12.5px}
+.side-rows div{display:flex;justify-content:space-between;color:#cfe6da}
+.side-rows b{color:#fff;font-family:"Manrope"}
+.side-foot{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;color:#a9c9ba}
+
+/* ---------- Switch ---------- */
+.switch{position:relative;width:46px;height:26px;flex:none;border:none;background:#cbd8d1;border-radius:999px;transition:.2s;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{left:23px}
+.switch.sm{width:40px;height:23px}
+.switch.sm::after{width:17px;height:17px}
+.switch.sm[aria-checked="true"]::after{left:20px}
+.switch:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- Topbar ---------- */
+.topbar{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.topbar h1{font-family:"Manrope";font-size:26px;margin:0;letter-spacing:-.01em}
+.topbar .sub{color:var(--muted);font-size:13.5px;margin-top:2px}
+.top-actions{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sync{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 13px;font-size:13px;box-shadow:var(--shadow)}
+.sync .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.sync small{display:block;color:var(--muted);font-size:11.5px}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;padding:9px 15px;font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2)}
+.btn.danger{background:var(--red-soft);border-color:transparent;color:var(--red)}
+.btn.small{padding:6px 11px;font-size:12.5px;border-radius:9px}
+.menu-btn{display:none}
+
+/* ---------- Cards & grids ---------- */
+.grid-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:17px 18px;box-shadow:var(--shadow)}
+.stat.hero{background:var(--green);color:#fff;border-color:var(--green)}
+.stat .num{font-family:"Manrope";font-size:31px;font-weight:800;line-height:1}
+.stat .lbl{color:var(--muted);font-size:13.5px;margin-top:5px}
+.stat.hero .lbl{color:#bcdccf}
+.stat .hint{font-size:12px;color:var(--muted);margin-top:7px}
+.stat.hero .hint{color:#9fc6b4}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.panel-head h2{font-size:16.5px;margin:0;font-family:"Manrope";font-weight:800}
+.panel-head .tag{margin-left:auto}
+.panel-body{padding:16px 18px}
+.tag{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--green-3)}
+.tag.off{background:var(--red-soft);color:var(--red)}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}
+.tag.blue{background:var(--blue-soft);color:var(--blue)}
+
+.ctrl-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+.ctrl-row:last-child{border-bottom:none}
+.ctrl-row .txt{flex:1;min-width:0}
+.ctrl-row .txt b{display:block;font-size:14.5px}
+.ctrl-row .txt span{font-size:12.5px;color:var(--muted)}
+select,input[type="text"]{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;max-width:100%}
+.ctrl-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv .cell{background:var(--surface-2);border-radius:11px;padding:12px 13px}
+.kv .cell .n{font-family:"Manrope";font-weight:800;font-size:22px;line-height:1.05}
+.kv .cell .t{font-size:12.5px;color:var(--muted);margin-top:3px}
+.kv .wide{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.kv .wide .n{font-size:15px}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.page-cell{display:flex;align-items:center;gap:11px;min-width:170px}
+.avatar{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--green-3);display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:12px;flex:none}
+.page-cell b{display:block;font-size:14.5px;line-height:1.2}
+.page-cell span{font-size:12px;color:var(--muted)}
+.num-cell{font-family:"Manrope";font-weight:700}
+.muted{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--green-3)}
+.pill.off{background:var(--surface-2);color:var(--muted)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.icon-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent)}
+.icon-btn.danger:hover{color:var(--red);border-color:var(--red)}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:14px}
+
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* ---------- Chatbox popup (professional, floating) ---------- */
+.chat-pop{position:fixed;right:22px;bottom:22px;width:min(920px,calc(100vw - 32px));height:min(680px,calc(100dvh - 84px));z-index:65;display:flex;flex-direction:column;border-radius:18px;box-shadow:0 30px 70px -18px rgba(6,30,20,.5),0 4px 14px rgba(6,30,20,.18);overflow:hidden;animation:chatPop .22s ease-out}
+@keyframes chatPop{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.chat-pop-head{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--green);color:#fff;flex:none}
+.chat-pop-avatar{background:#f2c94c;color:#0b3d2c;width:40px;height:40px;border-radius:12px}
+.chat-pop-title{min-width:0;flex:1}
+.chat-pop-title h2{font-size:15.5px;margin:0;font-family:"Manrope";font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-pop-status{display:flex;align-items:center;gap:6px;font-size:12px;color:#bcdccf;margin-top:1px}
+.chat-pop-status .dot{width:7px;height:7px;box-shadow:none}
+.chat-pop-select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:9px;padding:7px 9px;font-size:13px;max-width:170px}
+.chat-pop-select option{color:#13211b}
+.chat-pop-btn{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+.chat-pop-btn:hover{background:rgba(255,255,255,.22)}
+.chat-pop.min .chat-pop-body{display:none}
+.chat-pop.min{height:auto}
+.chat-pop-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:13px 16px 15px}
+.chat-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center;flex:none}
+.chat-layout{display:grid;grid-template-columns:262px 1fr;gap:14px;flex:1;min-height:0}
+.chat-people-col{display:flex;flex-direction:column;min-height:0;min-width:0}
+.new-chat-row{display:flex;gap:7px;margin-bottom:10px;flex:none}
+#chatPeople{display:grid;gap:7px;align-content:start;overflow-y:auto;min-height:0;padding-right:3px;overscroll-behavior:contain;scrollbar-width:thin}
+.chat-convo{display:flex;flex-direction:column;min-height:0;min-width:0;border:1px solid var(--line);border-radius:13px;background:var(--surface-2);padding:12px}
+.quick-label{margin-top:10px;font-size:12.5px;color:var(--muted);flex:none}
+#quickReplies{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px;flex:none}
+.chat-composer{display:flex;gap:9px;margin-top:12px;flex:none}
+.chat-composer input{flex:1;min-width:0;background:var(--surface)}
+
+.person{display:flex;gap:11px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:12px;padding:9px 10px;color:var(--ink);align-items:flex-start}
+.person:hover{background:var(--surface-2)}
+.person.active{border-color:transparent;background:var(--accent-soft)}
+.person-avatar{position:relative;width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:14px;color:#fff;overflow:visible;background:var(--accent)}
+.person-avatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block}
+.person-avatar .fb-badge{position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-radius:50%;background:#0084ff;color:#fff;display:grid;place-items:center;font-size:9px;font-weight:800;border:2px solid var(--surface);line-height:1}
+.person-main{flex:1;min-width:0}
+.person-top{display:flex;align-items:baseline;gap:8px}
+.person-top b{flex:1;min-width:0;font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.person.unread .person-top b{font-weight:800}
+.person-time{flex:none;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.person.unread .person-time{color:var(--accent);font-weight:700}
+.person-last{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:2px;min-width:0}
+.person-last .txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person.unread .person-last .txt{color:var(--ink);font-weight:600}
+.unread-dot{width:9px;height:9px;border-radius:50%;background:#0084ff;flex:none}
+.person-meta-ic{flex:none;font-size:11px;color:var(--muted)}
+.person-actions{display:flex;gap:5px;margin:2px 0 6px 57px;flex-wrap:wrap}
+.person-actions .btn{padding:4px 8px;font-size:11.5px;border-radius:8px}
+.contacts-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex:none}
+.contacts-bar b{font-size:13px}
+.contacts-bar span{font-size:12px;color:var(--muted)}
+.contacts-bar .btn{margin-left:auto}
+.contacts-spinner{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px 8px;color:var(--muted);font-size:12.5px}
+.spinner{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);border-top-color:#0084ff;animation:spin .75s linear infinite;flex:none}
+.spinner.lg{width:30px;height:30px;border-width:3.5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.contacts-end{padding:10px 8px;text-align:center;color:var(--muted);font-size:12px}
+.reload-spinning{animation:spin .75s linear infinite}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-weight:600;font-size:13px;color:var(--ink)}
+.chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+#inboxThread{display:grid;gap:9px;align-content:start;flex:1;min-height:0;overflow-y:auto;padding:4px 4px 4px 2px;overscroll-behavior:contain;scrollbar-width:thin;background:var(--surface);border:1px solid var(--line);border-radius:11px}
+.bubble{max-width:82%;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:9px 12px;font-size:14px;justify-self:start;word-break:break-word}
+.bubble small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.bubble.out{background:var(--green);color:#fff;border-color:var(--green);justify-self:end}
+.bubble.out small{color:#bcdccf}
+.quick a{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.quick a:hover{border-color:var(--accent)}
+.quick b{font-size:15px;display:block}
+.quick span{font-size:13px;color:var(--muted)}
+.section-title{font-family:"Manrope";font-size:17px;font-weight:800;margin:22px 0 11px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,80px);background:var(--green);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);transition:.3s;z-index:60;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.modal-back{position:fixed;inset:0;background:rgba(6,20,14,.55);display:none;place-items:center;z-index:70;padding:18px}
+.modal-back.open{display:grid}
+.modal{background:var(--surface);border-radius:16px;max-width:420px;width:100%;padding:22px;box-shadow:0 24px 60px -12px rgba(0,0,0,.45)}
+.modal h3{margin:0 0 7px;font-size:17px}
+.modal p{margin:0 0 18px;color:var(--muted);font-size:14px}
+.modal .row{display:flex;gap:10px;justify-content:flex-end}
+.scrim{display:none}
+
+/* ---------- Bottom nav (mobile) ---------- */
+.bottomnav{display:none}
+
+@media (max-width:960px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .sidebar.open{display:flex;position:fixed;inset:0 auto 0 0;width:272px;z-index:80;box-shadow:20px 0 50px rgba(0,0,0,.35)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(6,20,14,.5);z-index:75;opacity:0;pointer-events:none;transition:.25s}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .main{padding:16px 14px 30px}
+  .menu-btn{display:inline-flex}
+  .grid-stats{grid-template-columns:1fr 1fr}
+  .grid-2,.quick{grid-template-columns:1fr}
+  .chat-pop{right:8px;left:8px;bottom:8px;width:auto;height:min(88dvh,760px)}
+  .chat-pop-head{flex-wrap:wrap}
+  .chat-pop-title{flex:1;min-width:130px}
+  .chat-pop-select{order:6;flex:1 1 100%;max-width:none}
+  .chat-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .chat-people-col{max-height:168px}
+  #chatPeople{max-height:118px}
+  .bottomnav{display:grid;grid-template-columns:repeat(4,1fr);margin:0 10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 34px -10px rgba(0,0,0,.3);padding:6px}
+  .bottomnav a{text-align:center;text-decoration:none;font-size:11.5px;color:var(--muted);padding:7px 2px;border-radius:11px;font-weight:600}
+  .bottomnav a.active{background:var(--accent-soft);color:var(--green-3)}
+  .bottomnav svg{width:19px;height:19px;display:block;margin:0 auto 2px}
+  /* Stack table rows as cards on phones */
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--line);padding:8px 4px}
+  tbody td{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:none;padding:7px 12px}
+  tbody td::before{content:attr(data-l);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tbody td:first-child::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.chat-pop{animation:none}.spinner,.reload-spinning{animation-duration:1.6s}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-badge">
+        <span class="brand-mark">B2B</span>
+        <span><span class="brand-name">B2B Admin</span><br><span class="brand-sub">6 Pages • Orders • Signals</span></span>
+      </span>
+    </div>
+
+    <div class="menu-label">MENU</div>
+    <nav class="nav">
+      <a href="#/dashboard" data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Dashboard</a>
+      <a href="#/pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Pages <span class="count">6</span></a>
+      <a href="#/signals" data-view="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a8 8 0 0 1 16 0"/><path d="M2 16a13 13 0 0 1 20 0"/><circle cx="12" cy="20" r="1.6" fill="currentColor"/></svg>Signal Panel</a>
+      <a href="#/orders" data-view="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.5h10.7L21 7H6"/></svg>Orders <span class="count" id="sideOrdCount">0</span></a>
+      <a href="#/payments" data-view="payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Payments</a>
+      <a href="#/invoice" data-view="invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Invoice</a>
+      <a href="#/people" data-view="people"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M17.5 15.4c2 .6 3.4 2.1 4 4.6"/></svg>People</a>
+      <a href="#/lead" data-view="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v5l-4 2v-7z"/></svg>Lead Center</a>
+      <a href="#/inbox" data-view="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>Inbox <span class="count" id="sideInboxCount">0</span></a>
+      <a href="#/audience" data-view="audience"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Audience</a>
+      <a href="#/events" data-view="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a>
+      <a href="#/control" data-view="control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Control Panel</a>
+      <a href="#/analysis" data-view="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Analysis</a>
+    </nav>
+
+    <!-- Sidebar signal widget -->
+    <div class="side-signal">
+      <h3><span class="dot" id="sideDot"></span>Signal Panel</h3>
+      <p>Master signal <b id="sideMasterTxt" style="color:#fff">ON</b> আছে</p>
+      <div class="side-rows">
+        <div><span>মোট Signal</span><b id="sideTotal">0</b></div>
+        <div><span>Delivered</span><b id="sideDelivered">0</b></div>
+        <div><span>Page ON</span><b id="sidePagesOn">0 / 6</b></div>
+      </div>
+    </div>
+
+    <div class="side-foot">Password ছাড়াই খোলা আছে —<br>শুধু নিজের ব্যবহারের জন্য।</div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="wrap">
+
+      <div class="topbar">
+        <div>
+          <button class="btn menu-btn" id="menuBtn" aria-label="Menu খুলুন">☰ Menu</button>
+          <h1>B2B Admin Panel</h1>
+          <div class="sub" id="viewSub">Dashboard — শুধু Dashboard-এর হিসাব</div>
+        </div>
+        <div class="top-actions">
+          <div class="sync"><span class="pulse" id="syncDot"></span><span><span id="syncTitle">Sheet Live — connect হচ্ছে…</span><small id="syncSub">Apps Script (Version 47) থেকে Inbox, Orders, Payments, Events, People আর Signal state আসছে</small></span></div>
+          <button class="btn theme-btn" id="themeBtn" aria-pressed="false" aria-label="Day mode dark mode bodlan">☀ Day Mode</button>
+          <button class="btn primary" id="refreshBtn">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Overview / Dashboard view -->
+      <section id="overview" class="view active" data-route="dashboard">
+        <div class="grid-stats">
+          <div class="stat hero"><div class="num">6</div><div class="lbl">Total Pages</div><div class="hint">সবগুলো Page এই panel-এ যুক্ত</div></div>
+          <div class="stat"><div class="num" id="dashOrders">0</div><div class="lbl">Total Orders</div><div class="hint">Sheet Orders থেকে live হিসাব</div></div>
+          <div class="stat"><div class="num" id="dashInbox">0</div><div class="lbl">Total Inbox</div><div class="hint">Sheet Inbox থেকে live হিসাব — সব Page মিলিয়ে</div></div>
+          <div class="stat"><div class="num" id="dashInboxPages">0 / 6</div><div class="lbl">Pages with Inbox</div><div class="hint" id="dashInboxHint">Sheet Inbox থেকে live হিসাব আসছে…</div></div>
+        </div>
+      </section>
+
+      <!-- Signal Control + Signal Stats view -->
+      <section id="signal-control" class="view" data-route="signals">
+        <div class="grid-2">
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Signal Control</h2>
+              <span class="tag" id="masterTag">MASTER ON</span>
+            </div>
+            <div class="panel-body">
+              <div class="ctrl-row">
+                <div class="txt"><b>Master Signal</b><span>OFF থাকলে কোনো Page-এর signal-ই যাবে না</span></div>
+                <button class="switch" id="masterSwitch" role="switch" aria-checked="true" aria-label="Master signal on off"></button>
+              </div>
+              <div class="ctrl-row">
+                <div class="txt"><b>Auto Deliver</b><span>নতুন signal এলে নিজে নিজে delivered হবে</span></div>
+                <button class="switch" id="autoSwitch" role="switch" aria-checked="true" aria-label="Auto deliver on off"></button>
+              </div>
+              <div class="ctrl-row">
+                <div class="txt"><b>Test Signal পাঠান</b><span>Page বেছে নিয়ে একটা test signal তৈরি করুন</span></div>
+                <select id="testPageSelect" aria-label="Test signal এর Page"></select>
+              </div>
+              <div class="ctrl-actions">
+                <button class="btn primary" id="testSignalBtn">＋ Test Signal পাঠান</button>
+                <a class="btn" href="#/events" style="text-decoration:none">Signal Table দেখুন</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Signal Stats</h2>
+              <span class="tag blue">SHEET LIVE হিসাব</span>
+            </div>
+            <div class="panel-body">
+              <div class="kv">
+                <div class="cell"><div class="n" id="stTotal">0</div><div class="t">মোট Signal</div></div>
+                <div class="cell"><div class="n" id="stToday">0</div><div class="t">আজকের Signal</div></div>
+                <div class="cell"><div class="n" id="stDelivered">0</div><div class="t">Delivered Signal</div></div>
+                <div class="cell"><div class="n" id="stPending">0</div><div class="t">Pending Signal</div></div>
+                <div class="cell"><div class="n" id="stDeleted">0</div><div class="t">Deleted (Event-Delete)</div></div>
+                <div class="cell"><div class="n" id="stPagesOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+                <div class="cell wide"><span class="t" style="margin:0">সর্বশেষ Signal</span><span class="n" id="stLast">—</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Page list view -->
+      <section id="pages" class="view" data-route="pages">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Page List</h2>
+            <span class="tag">6 PAGES</span>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="Page list with signal controls">
+              <thead>
+                <tr>
+                  <th>Page</th><th>Orders</th><th>Inbox</th>
+                  <th>Pages-Signal</th><th>Delivered Signal</th><th>Event-Delete</th>
+                  <th>Signal ON / OFF</th>
+                </tr>
+              </thead>
+              <tbody id="pageRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Signal events (Signal Panel view-এর অংশ) -->
+      <section id="signals" class="view" data-route="signals">
+        <h2 class="section-title">Signal Events</h2>
+        <div class="panel">
+          <div class="panel-head">
+            <h2 style="font-size:15px">সব Signal — Table</h2>
+            <span class="tag amber" id="evtCount">0 টি</span>
+            <button class="btn small" id="clearDeliveredBtn" style="margin-left:8px">Delivered গুলো সরান</button>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="Signal events">
+              <thead>
+                <tr><th>Event</th><th>Page</th><th>ধরন</th><th>Customer / Model</th><th>Source</th><th>সময়</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="signalRows"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="signalEmpty" style="display:none">Sheet-এর Events tab-এ এখনো কোনো event নেই — real event এলে এখানেই দেখাবে। নিজে test করতে চাইলে উপরে Test Signal পাঠান।</div>
+        </div>
+      </section>
+
+      <!-- Quick access (Dashboard view-এর অংশ) -->
+      <section id="quick" class="view" data-route="dashboard">
+        <h2 class="section-title">Quick Access</h2>
+        <div class="quick">
+          <a href="#/pages"><b>Pages</b><span>6 pages • IDs &amp; info • প্রতি Page-এর signal switch</span></a>
+          <a href="#/signals"><b>Signal Control</b><span>Master ON/OFF • Test signal • Auto deliver</span></a>
+          <a href="#/events"><b>Signal Events</b><span>Delivered করা • Event-delete করা • পুরনো signal সরানো</span></a>
+          <a href="#/invoice"><b>Invoice</b><span>Per Page • Invoice slip dekhun</span></a>
+        </div>
+      </section>
+
+      <!-- Orders view -->
+      <section class="view" data-route="orders">
+        <div class="view-head"><h2>Orders</h2><p>Sheet-এর Orders tab থেকে live — এখানে কোনো order হাতে বানানো হয় না</p></div>
+        <div class="panel"><div class="panel-head"><h2>সব Order — Sheet Live</h2><span class="tag" id="ordCount">0 টি</span></div>
+        <div class="table-wrap"><table aria-label="Orders list"><thead><tr><th>Customer</th><th>Page</th><th>Bike / Model</th><th>Amount</th><th>Mobile · Address</th><th>Path</th><th>Status</th><th>Invoice · Date</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <div class="empty" id="ordEmpty" style="display:none">Sheet-এ এখনো কোনো order নেই — real order এলে এখানেই দেখাবে।</div></div>
+      </section>
+
+      <!-- Payments view -->
+      <section class="view" data-route="payments">
+        <div class="view-head"><h2>Payments</h2><p>Sheet-এর Payments tab থেকে live</p></div>
+        <div class="panel"><div class="panel-head"><h2>সব Payment — Sheet Live</h2><span class="tag blue" id="payCount">0 টি</span></div>
+        <div class="table-wrap"><table aria-label="Payments list"><thead><tr><th>Customer</th><th>Page</th><th>Amount</th><th>TrxID / Last 4</th><th>Status</th><th>Date</th></tr></thead><tbody id="payRows"></tbody></table></div>
+        <div class="empty" id="payEmpty" style="display:none">Sheet-এ এখনো কোনো payment নেই — real payment এলে এখানেই দেখাবে।</div></div>
+      </section>
+
+      <!-- Invoice view -->
+      <section class="view" data-route="invoice">
+        <div class="view-head"><h2>Invoice</h2><p>প্রতি Page-এর invoice — আলাদা page</p></div>
+        <div class="panel"><div class="panel-head"><h2>Page অনুযায়ী Invoice</h2><span class="tag">6 PAGES</span></div>
+        <div class="table-wrap"><table aria-label="Invoice by page"><thead><tr><th>Page</th><th>Orders</th><th>Action</th></tr></thead><tbody id="invoiceRows"></tbody></table></div></div>
+        <div class="panel" id="invoiceSlip" style="display:none;margin-top:14px"><div class="panel-head"><h2>Invoice Slip</h2><span class="tag blue" id="invNo">—</span><button class="btn small" id="invDownload" style="margin-left:8px">⬇ Download</button></div>
+        <div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="invPage" style="font-size:16px">—</div><div class="t">Page</div></div>
+          <div class="cell"><div class="n" id="invOrders">0</div><div class="t">মোট Order</div></div>
+          <div class="cell"><div class="n" style="font-size:16px">Sheet Live</div><div class="t">তথ্যের উৎস</div></div>
+          <div class="cell"><div class="n" id="invInbox">0</div><div class="t">Inbox</div></div>
+        </div><p class="muted" style="margin:12px 0 0" id="invNote"></p></div></div>
+      </section>
+
+      <!-- People view -->
+      <section class="view" data-route="people">
+        <div class="view-head"><h2>People</h2><p>Sheet-এর People tab থেকে live — নাম, Page, stage, mobile, ঠিকানা আর শেষ message</p></div>
+        <div class="panel"><div class="panel-head"><h2>সব People — Sheet Live</h2><span class="tag" id="peopleTotal">0 জন</span></div>
+        <div style="padding:14px 18px 0"><input type="text" id="peopleSearch" placeholder="নাম, Page বা mobile লিখে খুঁজুন…" style="width:100%" aria-label="People search"></div>
+        <div class="table-wrap"><table aria-label="People list"><thead><tr><th>নাম</th><th>Page</th><th>Stage</th><th>Mobile</th><th>ঠিকানা</th><th>শেষ Message</th></tr></thead><tbody id="peopleRows"></tbody></table></div>
+        <div class="empty" id="peopleEmpty" style="display:none">Sheet-এর People tab-এ এখনো কোনো row নেই — real lead এলে এখানেই দেখাবে।</div></div>
+      </section>
+
+      <!-- Lead Center view -->
+      <section class="view" data-route="lead">
+        <div class="view-head"><h2>Lead Center</h2><p>Sheet-এর People tab থেকে live lead — stage অনুযায়ী সাজানো</p></div>
+        <div class="panel"><div class="panel-head"><h2>সব Lead — Sheet Live</h2><select id="leadFilter" aria-label="Lead filter" style="margin-left:auto"><option value="all">সব Lead</option><option value="mobile">Mobile আছে এমন</option><option value="nomobile">Mobile নেই এমন</option></select></div>
+        <div class="table-wrap"><table aria-label="Leads list"><thead><tr><th>নাম</th><th>Page</th><th>Stage</th><th>Mobile</th><th>শেষ Message</th></tr></thead><tbody id="leadRows"></tbody></table></div>
+        <div class="empty" id="leadEmpty" style="display:none">Sheet-এর People tab-এ এখনো কোনো lead নেই — real lead এলে এখানেই দেখাবে।</div></div>
+      </section>
+
+      <!-- Inbox view -->
+      <section class="view" data-route="inbox">
+        <div class="view-head"><h2>Inbox</h2><p>মোট <span id="inboxHeadTotal">0</span> Inbox — Page অনুযায়ী ভাগ (Sheet থেকে live)</p></div>
+        <div class="panel" style="margin-bottom:14px"><div class="panel-head"><h2>Inbox Maintenance — সারাংশ</h2><span class="tag blue">সব Page মিলিয়ে</span></div>
+        <div class="panel-body"><div class="kv" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+          <div class="cell"><div class="n" id="msTotalChats">0</div><div class="t">মোট Chat</div></div>
+          <div class="cell"><div class="n" id="msUnread">0</div><div class="t">না-পড়া Chat</div></div>
+          <div class="cell"><div class="n" id="msStarred">0</div><div class="t">★ Star করা</div></div>
+          <div class="cell"><div class="n" id="msFollow">0</div><div class="t">Follow-up</div></div>
+          <div class="cell"><div class="n" id="msArchived">0</div><div class="t">Archive</div></div>
+        </div></div></div>
+        <div class="panel" style="margin-bottom:14px"><div class="panel-body" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <b>Page Switch করুন</b>
+          <span class="muted" style="font-size:13px">Page বেছে নিলেই সেই Page-এর inbox / chatbox খুলবে</span>
+          <select id="inboxPageSwitch" aria-label="Inbox Page switch" style="margin-left:auto"></select>
+          <button class="btn primary small" id="inboxSwitchBtn">Inbox খুলুন</button>
+        </div></div>
+        <div class="panel"><div class="panel-head"><h2>Inbox Breakdown</h2><span class="tag" id="inboxTotal">0</span></div>
+        <div class="table-wrap"><table aria-label="Inbox by page"><thead><tr><th>Page</th><th>Inbox</th><th>Orders</th><th>Action</th></tr></thead><tbody id="inboxRows"></tbody></table></div></div>
+        <div class="panel chat-pop" id="inboxViewer" style="display:none" role="dialog" aria-label="Page chatbox">
+          <div class="chat-pop-head">
+            <span class="avatar chat-pop-avatar" id="chatPopAvatar">BCB</span>
+            <div class="chat-pop-title">
+              <h2 id="inboxViewerTitle">Chatbox</h2>
+              <span class="chat-pop-status"><span class="dot"></span><span id="inboxViewerCount">0 inbox</span></span>
+            </div>
+            <select id="chatPageSelect" class="chat-pop-select" aria-label="Chatbox এর Page"></select>
+            <button class="chat-pop-btn" id="chatReloadBtn" title="Reload — getPeople থেকে সব contact আবার আনুন" aria-label="Contact list reload করুন">↻</button>
+            <button class="chat-pop-btn" id="markAllReadBtn" title="সব chat Read করুন" aria-label="সব chat Read করুন">✓</button>
+            <button class="chat-pop-btn" id="chatMinBtn" title="ছোট / বড় করুন" aria-label="Chatbox ছোট বড় করুন">—</button>
+            <button class="chat-pop-btn" id="inboxClose" title="বন্ধ করুন" aria-label="Chatbox বন্ধ করুন">✕</button>
+          </div>
+          <div class="panel-body chat-pop-body">
+            <div class="chat-filters">
+              <button class="chip active" data-chatfilter="all">সব Chat</button>
+              <button class="chip" data-chatfilter="unread">না-পড়া</button>
+              <button class="chip" data-chatfilter="starred">★ Star</button>
+              <button class="chip" data-chatfilter="follow">Follow-up</button>
+              <button class="chip" data-chatfilter="archived">Archive</button>
+              <input type="text" id="chatSearch" placeholder="Chat খুঁজুন…" style="margin-left:auto;min-width:150px" aria-label="Chat search">
+            </div>
+            <div class="chat-layout">
+              <div class="chat-people-col">
+                <div class="new-chat-row"><input type="text" id="newChatName" placeholder="নতুন মানুষের নাম" style="flex:1;min-width:0" aria-label="নতুন chat এর নাম"><button class="btn small primary" id="newChatBtn">＋ Chat</button></div>
+                <div class="contacts-bar"><b>সব Contact</b><span id="chatContactCount">0 জন</span><button class="btn small" id="chatListReloadBtn" title="Reload — সব contact আবার আনুন">↻ Reload</button></div>
+                <div id="chatPeople"></div>
+                <div class="empty" id="chatPeopleEmpty" style="display:none;padding:14px 6px">এই Page-এ এখনো কোনো chat নেই — উপরে নাম লিখে নতুন chat শুরু করুন।</div>
+              </div>
+              <div class="chat-convo">
+                <div id="inboxThread"></div>
+                <div class="empty" id="inboxThreadEmpty" style="display:none">বামে একজনকে বেছে নিন, অথবা নতুন chat শুরু করুন।</div>
+                <div class="quick-label">Quick Reply — চাপলে লেখাটা নিচের box-এ আসবে, দেখে তারপর পাঠান:</div>
+                <div id="quickReplies"></div>
+                <div class="chat-composer">
+                  <input type="text" id="inboxMsgInput" placeholder="Message লিখুন…" aria-label="Chat message">
+                  <button class="btn primary" id="inboxMsgSend">পাঠান</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audience view -->
+      <section class="view" data-route="audience">
+        <div class="view-head"><h2>Audience</h2><p>Signal ON Page গুলোই active audience</p></div>
+        <div class="panel"><div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="audOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+          <div class="cell"><div class="n" id="audOff">0 / 6</div><div class="t">Signal OFF Page — OFF-ই থাকবে</div></div>
+        </div><p class="muted" style="margin:14px 0 0">OFF করা Page নিজে নিজে ON হবে না। নিচের switch দিয়েও প্রতি Page-এর signal ON/OFF করা যায়।</p></div></div>
+        <div class="panel" style="margin-top:14px"><div class="panel-head"><h2>Page অনুযায়ী Audience Switch</h2></div><div class="panel-body" id="audRows"></div></div>
+      </section>
+
+      <!-- Events view -->
+      <section class="view" data-route="events">
+        <div class="view-head"><h2>Events</h2><p>সব Signal Event — আলাদা page, Dashboard এখানে নেই</p></div>
+        <div class="panel"><div class="panel-head"><h2>সব Event — Sheet Live</h2><span class="tag amber" id="eventCount2">0 টি</span></div>
+        <div class="table-wrap"><table aria-label="Events list"><thead><tr><th>Event</th><th>Page</th><th>ধরন</th><th>Customer / Model</th><th>Source</th><th>সময়</th><th>Status</th></tr></thead><tbody id="eventRows"></tbody></table></div>
+        <div class="empty" id="eventEmpty" style="display:none">Sheet-এর Events tab-এ এখনো কোনো event নেই — real event এলে এখানেই দেখাবে।</div></div>
+      </section>
+
+      <!-- Control Panel view -->
+      <section class="view" data-route="control">
+        <div class="view-head"><h2>Control Panel</h2><p>প্রতি Page-এর Signal ON/OFF — OFF করলে সাথে সাথে OFF হয় আর OFF-ই থাকে; আবার ON করতে গেলে confirm চাইবে, তাই ভুল চাপে বা নিজে নিজে ON হবে না</p></div>
+        <div class="panel"><div class="panel-head"><h2>Page Signal Switch</h2><span class="tag" id="controlMasterTag">MASTER ON</span><button class="btn small" id="allOnBtn" style="margin-left:8px">সব ON করুন</button><button class="btn small" id="allOffBtn">সব OFF করুন</button></div>
+        <div class="panel-body" id="controlRows"></div></div>
+        <p class="muted" style="margin-top:12px">কারণ: OFF Page-এর test / order signal Facebook-এ গেলে সমস্যা হবে — তাই OFF Page-এ কোনো signal পাঠানো হয় না, আর switch-এর অবস্থা page বদলালেও বদলায় না।</p>
+      </section>
+
+      <!-- Analysis view -->
+      <section class="view" data-route="analysis">
+        <div class="view-head"><h2>Analysis</h2><p>Signal আর Page-এর সারাংশ</p></div>
+        <div class="panel"><div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="anTotal">0</div><div class="t">মোট Signal</div></div>
+          <div class="cell"><div class="n" id="anDelivered">0</div><div class="t">Delivered</div></div>
+          <div class="cell"><div class="n" id="anPending">0</div><div class="t">Pending</div></div>
+          <div class="cell"><div class="n" id="anPagesOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+        </div></div></div>
+        <div class="panel" style="margin-top:14px"><div class="panel-head"><h2>Page অনুযায়ী Signal Breakdown</h2><span class="tag blue">LIVE হিসাব</span></div><div class="panel-body" id="anBreakdown"></div></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<nav class="bottomnav" aria-label="Mobile">
+  <a href="#/dashboard" data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Home</a>
+  <a href="#/pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Pages</a>
+  <a href="#/signals" data-view="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a8 8 0 0 1 16 0"/><circle cx="12" cy="20" r="1.6" fill="currentColor"/></svg>Signal</a>
+  <a href="#/events" data-view="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Events</a>
+</nav>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Signal delete করবেন?</h3>
+    <p id="modalText">এই signal-টা Event-Delete হয়ে যাবে।</p>
+    <div class="row">
+      <button class="btn" id="modalCancel">না, থাক</button>
+      <button class="btn danger" id="modalOk">হ্যাঁ, Delete করুন</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ----- Data (screenshot + owner Page list থেকে) ----- */
+  var pages = [
+    {id:"bcb", mark:"BCB", name:"Border Cross Bike", bn:"বর্ডার ক্রস বাইক", orders:0, inbox:0, on:true},
+    {id:"bb",  mark:"বাই", name:"বাইক বাজার", bn:"Bike Bazar", orders:0, inbox:0, on:true},
+    {id:"bsc", mark:"BSC", name:"Bike Sell Center", bn:"বাইক সেল সেন্টার", orders:0, inbox:0, on:true},
+    {id:"icb", mark:"ICB", name:"Indian Custom Bike", bn:"ইন্ডিয়ান কাস্টম বাইক", orders:0, inbox:0, on:false},
+    {id:"bz",  mark:"BZ",  name:"Bike Zone", bn:"বাইক জোন", orders:0, inbox:0, on:true},
+    {id:"bbd", mark:"BD",  name:"Bike BD", bn:"বাইক বিডি", orders:0, inbox:0, on:false}
+  ];
+
+  var seq = 100;
+  var signals = [];      /* Sheet Events থেকে live আসে (+ নিজের পাঠানো Test Signal) */
+  var localSignals = []; /* শুধু এই session-এ নিজে পাঠানো Test Signal */
+  var deletedCount = 0;
+  var orderSeq = 1000;
+  var orders = [];       /* Sheet Orders থেকে live আসে */
+  var liveOrders = [];
+  var livePayments = [];
+  var liveEvents = [];
+  var livePeople = [];
+  var leadStatus = {};
+  var currentInvPage = null;
+  var inboxOpen = null;
+  var pageNotes = {};
+  var chats = {};
+  var activeChat = null;
+  var chatSeq = 0;
+  var chatFilter = "all";
+  var masterOn = true;
+  var autoDeliver = true;
+  /* Facebook inbox style: contact list getPeople থেকে, scroll করলে ধাপে ধাপে load */
+  var CONTACT_PAGE_SIZE = 30;
+  var contactVisible = CONTACT_PAGE_SIZE;
+  var contactLoading = false;
+  var contactFiltered = [];
+  var inboxReloading = false;
+  var contactPreserveScroll = null;
+  var contactFilterKey = "";
+
+  /* ----- Sheet Live Connection (Apps Script web app, Version 47) ----- */
+  var API = "https://script.google.com/macros/s/AKfycbxgEaDli8K04SeuVjqL3qqdx6w4QQSvLXC23hjgP6p10XfJKU_ru8C39ky7dxbrlDOs/exec";
+  var liveLoaded = false;       /* getInbox সফল হলে true */
+  var liveSignalLoaded = false; /* getSignalState সফল হলে true */
+  var liveMsgs = [];
+  function apiPost(payload){
+    return fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)})
+      .then(function(r){ return r.json(); });
+  }
+  function sheetName(p){ return p.id==="bb" ? p.bn : p.name; }
+  function pageBySheetName(nm){
+    if(nm==null) return null;
+    var k=String(nm).trim().toLowerCase();
+    for(var i=0;i<pages.length;i++){
+      if(pages[i].name.toLowerCase()===k || pages[i].bn.toLowerCase()===k || pages[i].id===k) return pages[i];
+    }
+    return null;
+  }
+  function isReadVal(v){
+    if(v===true || v===1) return true;
+    if(typeof v==="string") return /^(yes|true|read|y|1)$/i.test(v.trim());
+    return false;
+  }
+  function fmtDate(v){
+    if(!v) return "";
+    var d=new Date(v);
+    if(isNaN(d.getTime())) return String(v);
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getUTCDate()+" "+mon[d.getUTCMonth()]+" "+d.getUTCFullYear();
+  }
+  /* Sheet row থেকে field তোলা — header-এর নাম/casing যেমনই হোক */
+  function pickVal(o, keys){
+    if(!o) return "";
+    for(var i=0;i<keys.length;i++){ var v=o[keys[i]]; if(v!=null && v!=="") return v; }
+    var lk={};
+    Object.keys(o).forEach(function(k){ lk[String(k).toLowerCase().replace(/[\s_\-]/g,"")]=o[k]; });
+    for(var j=0;j<keys.length;j++){ var w=lk[String(keys[j]).toLowerCase().replace(/[\s_\-]/g,"")]; if(w!=null && w!=="") return w; }
+    return "";
+  }
+  function rowPageName(o){ return String(pickVal(o,["page","Page","pageName","Page Name"])||"").trim(); }
+  function rowDateTxt(o){ var v=pickVal(o,["date","Date","time","Time","createdAt","Timestamp","updatedAt"]); return v? fmtDate(v):""; }
+  function isTodayVal(v){
+    if(!v) return false;
+    var d=new Date(v); if(isNaN(d.getTime())) return false;
+    var n=new Date();
+    return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+  }
+  function normStatus(v){
+    var s=String(v==null?"":v).trim().toLowerCase();
+    if(!s) return "pending";
+    if(s.indexOf("deliver")>-1 || s.indexOf("done")>-1 || s.indexOf("complete")>-1 || s.indexOf("paid")>-1) return "delivered";
+    if(s.indexOf("delet")>-1 || s.indexOf("cancel")>-1 || s.indexOf("reject")>-1) return "deleted";
+    return "pending";
+  }
+  /* Live row গুলো থেকে প্রতি Page-এর order হিসাব + Events থেকে signals তালিকা সাজানো */
+  function syncLiveDerived(){
+    pages.forEach(function(p){ p.orders=0; });
+    liveOrders.forEach(function(o){
+      var p=pageBySheetName(rowPageName(o)); if(p) p.orders++;
+    });
+    orders=liveOrders;
+    signals=liveEvents.map(function(e, ix){
+      var p=pageBySheetName(rowPageName(e));
+      var stRaw=pickVal(e,["status","Status"]);
+      return {
+        id: pickVal(e,["id","ID","signalId","Signal ID"]) || ("EV-"+(ix+1)),
+        pageId: p? p.id : "",
+        pageName: rowPageName(e),
+        type: String(pickVal(e,["type","Type","event","Event","signal","Signal"])||"Event"),
+        who: String(pickVal(e,["customer","Customer","customerName","Customer Name","model","Model","name","Name"])||""),
+        source: String(pickVal(e,["source","Source"])||""),
+        time: rowDateTxt(e),
+        today: isTodayVal(pickVal(e,["date","Date","time","Time","createdAt"])),
+        status: normStatus(stRaw),
+        statusRaw: String(stRaw==null?"":stRaw),
+        local:false
+      };
+    }).concat(localSignals);
+    deletedCount=signals.filter(function(s){ return s.status==="deleted"; }).length;
+  }
+  function setSync(state, sub){
+    var t=$("syncTitle"), s=$("syncSub"), dot=$("syncDot");
+    if(!t) return;
+    if(state==="live"){ t.textContent="Sheet Live Connected"; dot.style.background=""; }
+    else if(state==="error"){ t.textContent="Sheet Live — connect হয়নি"; dot.style.background="#f97066"; }
+    else { t.textContent="Sheet Live — connect হচ্ছে…"; dot.style.background=""; }
+    var hint=$("dashInboxHint");
+    if(hint) hint.textContent = state==="live" ? "Sheet Inbox থেকে live হিসাব" : (state==="error" ? "Live আসেনি — কোনো হিসাব বানিয়ে দেখানো হচ্ছে না, Refresh চাপুন" : "Sheet Inbox থেকে live হিসাব আসছে…");
+    if(sub) s.textContent=sub;
+  }
+  function avatarUrlOf(o){
+    return String(pickVal(o,["avatar","Avatar","profilePic","Profile Pic","profilePicture","Profile Picture","picture","Picture","photo","Photo","image","Image","profileUrl"])||"").trim();
+  }
+  function initialsFor(name, psid){
+    var s=String(name||"").trim();
+    if(s && !/^\d{6,}$/.test(s) && s.toLowerCase()!=="customer"){
+      var parts=s.split(/\s+/).filter(Boolean);
+      if(parts.length>=2) return (parts[0].charAt(0)+parts[1].charAt(0)).toUpperCase();
+      return s.slice(0,2).toUpperCase();
+    }
+    var d=String(psid||s||"?").replace(/\D/g,"");
+    return d? d.slice(-2) : "?";
+  }
+  var AV_COLORS=["#0084ff","#7c4dff","#0f9d58","#e8710a","#c2185b","#00838f","#5d4037","#3949ab"];
+  function avatarColorFor(key){
+    var h=0; var s=String(key||"");
+    for(var i=0;i<s.length;i++) h=(h*31 + s.charCodeAt(i))>>>0;
+    return AV_COLORS[h % AV_COLORS.length];
+  }
+  function contactLastTs(c){
+    if(c && typeof c.lastTs==="number" && c.lastTs) return c.lastTs;
+    if(c && c.msgs && c.msgs.length){
+      for(var i=c.msgs.length-1;i>=0;i--){ var t=Date.parse(c.msgs[i].rawDate||c.msgs[i].time||""); if(!isNaN(t)) return t; }
+    }
+    return 0;
+  }
+  /* Sheet Inbox (newest first) থেকে প্রতি Page-এর আসল chat তৈরি — Person অনুযায়ী group */
+  function buildLiveChats(){
+    var oldFlags={};
+    pages.forEach(function(p){
+      (chats[p.id]||[]).forEach(function(c){ var k=c.psid? (p.id+"|psid:"+c.psid) : (p.id+"|"+c.name); oldFlags[k]={starred:c.starred, follow:c.follow, archived:c.archived}; });
+    });
+    var grouped={}, byPerson={}, counts={}, lastKey={};
+    pages.forEach(function(p){ grouped[p.id]=[]; counts[p.id]=0; });
+    var oldestFirst=liveMsgs.slice().reverse();
+    oldestFirst.forEach(function(m){
+      var p=pageBySheetName(m.page); if(!p) return;
+      counts[p.id]++;
+      /* Version 47: getInbox প্রতি message-এ psid আর customerName দেয় — নাম থাকলে নাম, না থাকলে PSID */
+      var cname=String(pickVal(m,["customerName","Customer Name","name","Name"])||"").trim();
+      var psid=String(pickVal(m,["psid","PSID","Psid"])||"").trim();
+      var legacy=String(pickVal(m,["person","Person"])||"").trim();
+      var person=cname || psid || legacy;
+      var type=(m.type==null? "" : String(m.type)).trim().toLowerCase();
+      var out=(type==="outgoing" || type==="out" || type==="sent" || type==="page");
+      var key;
+      if(psid){ key=p.id+"|psid:"+psid; if(!out) lastKey[p.id]=key; }
+      else if(person){ key=p.id+"|"+person; lastKey[p.id]=key; }
+      else if(out && lastKey[p.id]){ key=lastKey[p.id]; }
+      else { key=p.id+"|Customer"; if(!out) lastKey[p.id]=key; }
+      var c=byPerson[key];
+      if(!c){
+        var fl=oldFlags[key]||{};
+        c={id:"live"+(++chatSeq), name:person||"Customer", psid:psid||legacy||"", unread:0,
+           starred:!!fl.starred, archived:!!fl.archived, follow:!!fl.follow, msgs:[], lastTs:0, avatarUrl:"", fromPeople:false};
+        byPerson[key]=c; grouped[p.id].push(c);
+      }
+      if(cname && c.name!==cname){ c.name=cname; }
+      if(psid && !c.psid){ c.psid=psid; }
+      var av=avatarUrlOf(m); if(av && !c.avatarUrl) c.avatarUrl=av;
+      var ts=Date.parse(m.date||""); if(!isNaN(ts) && ts>c.lastTs) c.lastTs=ts;
+      c.msgs.push({who: out? "out":"in", text:(m.message==null? "" : String(m.message)), time:fmtDate(m.date), rawDate:(m.date||"")});
+      if(!out && !isReadVal(m.read)) c.unread=1;
+    });
+    /* মূল contact list: getPeople থেকে সব unique contact — শুধু শেষ 500 message-এর contact না।
+       নাম থাকলে নাম, না থাকলে PSID। যার কোনো message নেই সেও list-এ থাকবে। */
+    (livePeople||[]).forEach(function(r){
+      var pgName=rowPageName(r);
+      var p=pageBySheetName(pgName);
+      if(!p){
+        /* Page মেলেনি এমন People row কোনো Page-এ জোর করে ঢোকানো হবে না */
+        if(pgName) return;
+        return;
+      }
+      var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim();
+      var ps=String(pickVal(r,["psid","PSID","Psid"])||"").trim();
+      var disp=nm || ps;
+      if(!disp) return;
+      var key2= ps? (p.id+"|psid:"+ps) : (p.id+"|"+disp);
+      var c2=byPerson[key2];
+      if(!c2){
+        /* PSID ছাড়া নাম দিয়ে inbox contact-এর সাথে মিলিয়ে দেখা */
+        if(!ps && nm){
+          Object.keys(byPerson).forEach(function(k){ if(k.indexOf(p.id+"|")===0){ var cc=byPerson[k]; if(cc && cc.name===nm) c2=cc; } });
+        }
+      }
+      var lastTxt=String(pickVal(r,["lastMessage","Last Message","last_message","lastMsg","message","Message"])||"").trim();
+      var av2=avatarUrlOf(r);
+      var ts2=Date.parse(pickVal(r,["date","Date","updatedAt","UpdatedAt","lastDate"])||""); if(isNaN(ts2)) ts2=0;
+      if(!c2){
+        var fl2=oldFlags[key2]||{};
+        c2={id:"people"+(++chatSeq), name:disp, psid:ps||"", unread:0,
+           starred:!!fl2.starred, archived:!!fl2.archived, follow:!!fl2.follow, msgs:[], lastTs:ts2, avatarUrl:av2||"", fromPeople:true, lastTextFallback:lastTxt};
+        byPerson[key2]=c2; grouped[p.id].push(c2);
+      } else {
+        c2.fromPeople=true;
+        if(nm && (c2.name===c2.psid || c2.name==="Customer" || /^\d{6,}$/.test(c2.name))) c2.name=nm;
+        if(ps && !c2.psid) c2.psid=ps;
+        if(av2 && !c2.avatarUrl) c2.avatarUrl=av2;
+        if(lastTxt && !c2.lastTextFallback) c2.lastTextFallback=lastTxt;
+        if(ts2 && ts2>c2.lastTs && !c2.msgs.length) c2.lastTs=ts2;
+      }
+      var stg=String(pickVal(r,["stage","Stage","status","Status"])||"").trim(); if(stg && !c2.stage) c2.stage=stg;
+      var mob=String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"").trim(); if(mob && !c2.mobile) c2.mobile=mob;
+    });
+    pages.forEach(function(p){
+      /* Facebook inbox-এর মতো: সবচেয়ে recent contact আগে */
+      grouped[p.id].sort(function(a,b){ return contactLastTs(b)-contactLastTs(a); });
+      chats[p.id]=grouped[p.id];
+      p.inbox=counts[p.id];
+    });
+    if(activeChat && inboxOpen){
+      var still=null;
+      (chats[inboxOpen]||[]).forEach(function(c){ if(c.id===activeChat) still=c; });
+      if(!still) activeChat=null;
+    }
+  }
+  function persistSignal(p){
+    apiPost({action:"setSignalState", page:sheetName(p), signalOn:!!p.on})
+      .then(function(res){
+        if(!res || !res.ok) toast(p.name+" — signal state Sheet-এ save হয়নি, Refresh দিয়ে আবার চেষ্টা করুন");
+      })
+      .catch(function(){ toast("Sheet connection পাওয়া যাচ্ছে না — signal state save হয়নি"); });
+  }
+  function loadLive(){
+    inboxReloading=true; contactVisible=CONTACT_PAGE_SIZE; contactLoading=false;
+    var rb=$("chatReloadBtn"); if(rb) rb.classList.add("reload-spinning");
+    var pl0=$("chatPeople");
+    if(pl0 && inboxOpen){ pl0.innerHTML='<div class="contacts-spinner"><span class="spinner lg"></span><span>সব contact load হচ্ছে…</span></div>'; }
+    setSync("loading", "Apps Script (Version 47) থেকে Inbox, Orders, Payments, Events, People আর Signal state আসছে");
+    var okCount=0;
+    var sP=apiPost({action:"getSignalState"}).then(function(res){
+      if(res && res.ok && res.states){
+        Object.keys(res.states).forEach(function(k){
+          var p=pageBySheetName(k); if(p) p.on=!!res.states[k];
+        });
+        liveSignalLoaded=true; okCount++;
+      }
+    }).catch(function(){});
+    var iP=apiPost({action:"getInbox", limit:5000}).then(function(res){
+      if(res && res.ok && res.messages){
+        liveMsgs=res.messages; liveLoaded=true; okCount++;
+        /* buildLiveChats এখন Promise.all-এর পরে হবে — যাতে getPeople-ও এসে যায়, contact list People থেকেই তৈরি হয় */
+      }
+    }).catch(function(){});
+    var oP=apiPost({action:"getOrders"}).then(function(res){
+      if(res && res.ok && res.rows){ liveOrders=res.rows; okCount++; }
+    }).catch(function(){});
+    var payP=apiPost({action:"getPayments"}).then(function(res){
+      if(res && res.ok && res.rows){ livePayments=res.rows; okCount++; }
+    }).catch(function(){});
+    var eP=apiPost({action:"getEvents"}).then(function(res){
+      if(res && res.ok && res.rows){ liveEvents=res.rows; okCount++; }
+    }).catch(function(){});
+    var peP=apiPost({action:"getPeople"}).then(function(res){
+      if(res && res.ok && res.rows){ livePeople=res.rows; okCount++; }
+    }).catch(function(){});
+    Promise.all([sP, iP, oP, payP, eP, peP]).then(function(){
+      if(liveLoaded || livePeople.length) buildLiveChats();
+      inboxReloading=false;
+      var rb2=$("chatReloadBtn"); if(rb2) rb2.classList.remove("reload-spinning");
+      syncLiveDerived();
+      renderAll();
+      if(okCount>0){
+        setSync("live", "Apps Script Version 47 • Inbox "+liveMsgs.length+" • Orders "+liveOrders.length+" • Payments "+livePayments.length+" • Events "+liveEvents.length+" • People "+livePeople.length+" — সব Sheet থেকে live");
+        toast("Sheet live data এসেছে — Inbox "+liveMsgs.length+", Orders "+liveOrders.length+", People "+livePeople.length);
+      } else {
+        setSync("error", "Connection পাওয়া যায়নি — Refresh চাপুন; কোনো হিসাব বানিয়ে দেখানো হচ্ছে না");
+      }
+    });
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var pageById = function(id){ for(var i=0;i<pages.length;i++) if(pages[i].id===id) return pages[i]; return null; };
+
+  function toast(msg){
+    var t=$("toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("show"); },2600);
+  }
+
+  /* ----- Signal ON/OFF-এর একমাত্র পথ: OFF সাথে সাথে, ON করতে confirm লাগবে — ভুল চাপে বা নিজে নিজে ON হবে না ----- */
+  function togglePage(p){
+    if(p.on){
+      p.on=false;
+      persistSignal(p);
+      toast(p.name+" — signal OFF হয়েছে, Sheet-এ save হয়েছে — reload দিলেও OFF-ই থাকবে");
+      renderAll();
+    } else {
+      openModal(p.name+"-এর signal আবার ON করবেন?",
+        "ON করলে এই Page-এ test / order signal যাবে। OFF রাখতে চাইলে 'না, থাক' চাপুন — তাহলে OFF-ই থাকবে।",
+        function(){ p.on=true; persistSignal(p); toast(p.name+" — signal এখন ON, Sheet-এ save হয়েছে"); renderAll(); },
+        "হ্যাঁ, ON করুন");
+    }
+  }
+
+  /* ----- Page rows ----- */
+  function pageSignalCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid) n++; }); return n; }
+  function pageDeliveredCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid && s.status==="delivered") n++; }); return n; }
+  function pageDeletedCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid && s.status==="deleted") n++; }); return n; }
+
+  function renderPages(){
+    var tb=$("pageRows"); tb.innerHTML="";
+    pages.forEach(function(p){
+      var tr=document.createElement("tr");
+      var sigN=pageSignalCount(p.id), delN=pageDeliveredCount(p.id), delEv=pageDeletedCount(p.id);
+      tr.innerHTML =
+        '<td data-l="Page"><div class="page-cell"><span class="avatar">'+p.mark+'</span><span><b>'+p.name+'</b><span>'+p.bn+'</span></span></div></td>'+
+        '<td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td>'+
+        '<td data-l="Inbox"><span class="num-cell">'+p.inbox+'</span></td>'+
+        '<td data-l="Pages-Signal"><span class="pill'+(sigN?"":" off")+'">'+sigN+' টি signal</span></td>'+
+        '<td data-l="Delivered"><span class="pill blue">'+delN+' delivered</span></td>'+
+        '<td data-l="Event-Delete"><span class="pill'+(delEv?" red":" off")+'">'+delEv+' deleted</span></td>'+
+        '<td data-l="Signal"><div class="row-actions"><button class="btn small" data-testsig="'+p.id+'">Test Signal</button><button class="switch sm" role="switch" aria-checked="'+p.on+'" aria-label="'+p.name+' signal on off" data-toggle="'+p.id+'"></button></div></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("[data-toggle]").forEach(function(sw){
+      sw.addEventListener("click", function(){
+        togglePage(pageById(sw.getAttribute("data-toggle")));
+      });
+    });
+    tb.querySelectorAll("[data-testsig]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        sendTestSignal(pageById(btn.getAttribute("data-testsig")));
+      });
+    });
+  }
+
+  /* ----- Signal rows ----- */
+  function statusPill(s){
+    if(s.status==="delivered") return '<span class="pill">● Delivered</span>';
+    if(s.status==="deleted") return '<span class="pill red">● Deleted</span>';
+    return '<span class="pill amber">● Pending</span>';
+  }
+  function renderSignals(){
+    var tb=$("signalRows"); tb.innerHTML="";
+    var visible=signals.slice().reverse();
+    $("signalEmpty").style.display = visible.length? "none":"block";
+    $("evtCount").textContent = visible.length+" টি";
+    visible.forEach(function(s){
+      var p=pageById(s.pageId);
+      var sigLbl = s.local? ("SIG-"+s.id) : String(s.id);
+      var tr=document.createElement("tr");
+      tr.innerHTML =
+        '<td data-l="Event"><span class="num-cell">'+escapeHtml(sigLbl)+'</span></td>'+
+        '<td data-l="Page">'+escapeHtml(p?p.name:(s.pageName||"—"))+'</td>'+
+        '<td data-l="ধরন">'+escapeHtml(s.type)+'</td>'+
+        '<td data-l="Customer / Model">'+escapeHtml(s.who||"—")+'</td>'+
+        '<td data-l="Source">'+escapeHtml(s.source||"—")+'</td>'+
+        '<td data-l="সময়" class="muted">'+escapeHtml(s.time||"")+'</td>'+
+        '<td data-l="Status">'+(s.statusRaw && !s.local? '<span class="pill blue">'+escapeHtml(s.statusRaw)+'</span>' : statusPill(s))+'</td>'+
+        '<td data-l="Action"><div class="row-actions">'+
+          (s.local && s.status==="pending" ? '<button class="btn small" data-deliver="'+s.id+'">✓ Delivered করুন</button>' : '')+
+          (s.local && s.status!=="deleted" ? '<button class="btn small danger" data-del="'+s.id+'">🗑 Event-Delete</button>' : '')+
+          (!s.local ? '<span class="muted" style="font-size:12px">Sheet record</span>' : '')+
+        '</div></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("[data-deliver]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var s=findSignal(+b.getAttribute("data-deliver")); if(!s) return;
+        s.status="delivered"; toast("SIG-"+s.id+" delivered হয়েছে"); renderAll();
+      });
+    });
+    tb.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var s=findSignal(+b.getAttribute("data-del")); if(!s) return;
+        openModal("SIG-"+s.id+" delete করবেন?", "এই signal-টা Event-Delete list-এ চলে যাবে।", function(){
+          s.status="deleted"; deletedCount++; toast("SIG-"+s.id+" delete হয়েছে"); renderAll();
+        });
+      });
+    });
+  }
+  function findSignal(id){ for(var i=0;i<signals.length;i++) if(signals[i].id===id) return signals[i]; return null; }
+  function markDelivered(id){ var s=findSignal(id); if(!s) return; s.status="delivered"; toast("SIG-"+id+" delivered হয়েছে"); renderAll(); }
+  function markDeleted(id){ var s=findSignal(id); if(!s) return; openModal("SIG-"+id+" delete করবেন?", "এই signal-টা Event-Delete list-এ চলে যাবে।", function(){ s.status="deleted"; deletedCount++; toast("SIG-"+id+" delete হয়েছে"); renderAll(); }); }
+
+  /* ----- Stats ----- */
+  function renderStats(){
+    var total=signals.length, today=0, del=0, pen=0;
+    signals.forEach(function(s){
+      if(s.today) today++;
+      if(s.status==="delivered") del++;
+      if(s.status==="pending") pen++;
+    });
+    var onN=pages.filter(function(p){return p.on;}).length;
+    var last=signals.length? signals[signals.length-1] : null;
+    $("stTotal").textContent=total;
+    $("stToday").textContent=today;
+    $("stDelivered").textContent=del;
+    $("stPending").textContent=pen;
+    $("stDeleted").textContent=deletedCount;
+    $("stPagesOn").textContent=onN+" / "+pages.length;
+    $("stLast").textContent= last? ((last.local? "SIG-"+last.id : String(last.id))+" • "+(last.time||"")) : "—";
+    $("sideTotal").textContent=total;
+    $("sideDelivered").textContent=del;
+    $("sidePagesOn").textContent=onN+" / "+pages.length;
+  }
+
+  function renderMaster(){
+    $("masterSwitch").setAttribute("aria-checked", masterOn);
+    $("autoSwitch").setAttribute("aria-checked", autoDeliver);
+    var tag=$("masterTag");
+    tag.textContent = masterOn? "MASTER ON":"MASTER OFF";
+    tag.className = "tag"+(masterOn?"":" off");
+    $("sideDot").className = "dot"+(masterOn?"":" off");
+    $("sideMasterTxt").textContent = masterOn? "ON":"OFF";
+    document.querySelectorAll("[data-toggle]").forEach(function(sw){ sw.disabled=!masterOn; });
+  }
+
+  /* ----- Derived views (Orders / Payments / Invoice / People / Lead / Inbox / Events / Control / Analysis) ----- */
+  function rowFor(p, cells){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td data-l="Page"><div class="page-cell"><span class="avatar">'+p.mark+'</span><span><b>'+p.name+'</b><span>'+p.bn+'</span></span></div></td>'+cells;
+    return tr;
+  }
+  function renderDerived(){
+    var ir=$("invoiceRows"); if(ir){ ir.innerHTML=""; pages.forEach(function(p){ var tr=rowFor(p,'<td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td><td data-l="Action"><button class="btn small" data-invoice="'+p.id+'">Invoice দেখুন</button></td>'); ir.appendChild(tr); }); ir.querySelectorAll("[data-invoice]").forEach(function(b){ b.addEventListener("click",function(){ var p=pageById(b.getAttribute("data-invoice")); currentInvPage=p; var slip=$("invoiceSlip"); slip.style.display="block"; $("invNo").textContent="INV-"+p.id.toUpperCase()+"-2026"; $("invPage").textContent=p.name; $("invOrders").textContent=p.orders; $("invInbox").textContent=p.inbox; $("invNote").textContent= p.orders? (p.name+"-এর "+p.orders+"টি order-এর invoice slip — uporের হিসাবেই তৈরি।") : (p.name+"-এর ekhono kono order nei, tai invoice slip faka।"); toast(p.name+"-এর invoice slip khola hoyeche"); }); }); }
+    var pr=$("peopleRows"); if(pr){ pr.innerHTML=""; livePeople.forEach(function(r){ var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim(); var ps=String(pickVal(r,["psid","PSID"])||"").trim(); var disp=nm||ps||"—"; var pg=pageBySheetName(rowPageName(r)); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="নাম"><div class="page-cell"><span class="avatar">'+escapeHtml(disp.slice(0,2).toUpperCase())+'</span><span><b>'+escapeHtml(disp)+'</b>'+(ps&&nm? '<span>PSID: '+escapeHtml(ps)+'</span>':'')+'</span></div></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Stage"><span class="pill blue">'+escapeHtml(String(pickVal(r,["stage","Stage","status","Status"])||"—"))+'</span></td><td data-l="Mobile"><span class="num-cell">'+escapeHtml(String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"—"))+'</span></td><td data-l="ঠিকানা">'+escapeHtml(String(pickVal(r,["address","Address","thikana"])||"—"))+'</td><td data-l="শেষ Message" class="muted">'+escapeHtml(String(pickVal(r,["lastMessage","Last Message","last_message","message","Message"])||"—"))+'</td>'; pr.appendChild(tr); }); if($("peopleEmpty")) $("peopleEmpty").style.display=livePeople.length? "none":"block"; if($("peopleTotal")) $("peopleTotal").textContent=livePeople.length+" জন"; }
+    var lr=$("leadRows"); if(lr){ lr.innerHTML=""; var lf=($("leadFilter")? $("leadFilter").value : "all"); livePeople.filter(function(r){ var mob=String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"").trim(); if(lf==="mobile") return !!mob; if(lf==="nomobile") return !mob; return true; }).forEach(function(r){ var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim(); var ps=String(pickVal(r,["psid","PSID"])||"").trim(); var disp=nm||ps||"—"; var pg=pageBySheetName(rowPageName(r)); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="নাম"><div class="page-cell"><span class="avatar">'+escapeHtml(disp.slice(0,2).toUpperCase())+'</span><span><b>'+escapeHtml(disp)+'</b></span></div></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Stage"><span class="pill blue">'+escapeHtml(String(pickVal(r,["stage","Stage","status","Status"])||"—"))+'</span></td><td data-l="Mobile"><span class="num-cell">'+escapeHtml(String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"—"))+'</span></td><td data-l="শেষ Message" class="muted">'+escapeHtml(String(pickVal(r,["lastMessage","Last Message","last_message","message","Message"])||"—"))+'</td>'; lr.appendChild(tr); }); if($("leadEmpty")) $("leadEmpty").style.display=livePeople.length? "none":"block"; }
+    var ib=$("inboxRows"); if(ib){ ib.innerHTML=""; pages.forEach(function(p){ ib.appendChild(rowFor(p,'<td data-l="Inbox"><span class="num-cell">'+p.inbox+'</span>'+(pageUnreadChats(p.id)? ' <span class="pill amber">'+pageUnreadChats(p.id)+' unread chat</span>':'')+'</td><td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td><td data-l="Action"><div class="row-actions"><button class="btn small primary" data-openinbox="'+p.id+'">Inbox খুলুন</button></div></td>')); }); ib.querySelectorAll("[data-openinbox]").forEach(function(b){ b.addEventListener("click",function(){ inboxOpen=b.getAttribute("data-openinbox"); renderAll(); var v=$("inboxViewer"); if(v) v.classList.remove("min"); }); }); }
+    var payTb=$("payRows"); if(payTb){ payTb.innerHTML=""; livePayments.slice().reverse().forEach(function(r){ var pg=pageBySheetName(rowPageName(r)); var cust=String(pickVal(r,["customerName","Customer Name","customer","Customer","name","Name"])||"").trim() || String(pickVal(r,["psid","PSID"])||"").trim() || "—"; var amt=pickVal(r,["amount","Amount","tk","TK"]); var trx=pickVal(r,["trxId","TrxID","Trx ID","trxid","last4","Last 4","lastDigits"]); var stRaw=String(pickVal(r,["status","Status"])||""); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Customer"><b>'+escapeHtml(cust)+'</b></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Amount"><span class="num-cell">'+(amt!==""? escapeHtml(String(amt))+" টাকা":"—")+'</span></td><td data-l="TrxID / Last 4"><span class="num-cell">'+escapeHtml(String(trx||"—"))+'</span></td><td data-l="Status">'+(stRaw? '<span class="pill blue">'+escapeHtml(stRaw)+'</span>' : statusPill({status:normStatus(stRaw)}))+'</td><td data-l="Date" class="muted">'+escapeHtml(rowDateTxt(r))+'</td>'; payTb.appendChild(tr); }); $("payCount").textContent=livePayments.length+" টি"; $("payEmpty").style.display=livePayments.length?"none":"block"; }
+    var ev=$("eventRows"); if(ev){ ev.innerHTML=""; signals.slice().reverse().forEach(function(s){ var p=pageById(s.pageId); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Event"><span class="num-cell">'+escapeHtml(s.local? ("SIG-"+s.id) : String(s.id))+'</span></td><td data-l="Page">'+escapeHtml(p?p.name:(s.pageName||"—"))+'</td><td data-l="ধরন">'+escapeHtml(s.type)+'</td><td data-l="Customer / Model">'+escapeHtml(s.who||"—")+'</td><td data-l="Source">'+escapeHtml(s.source||"—")+'</td><td data-l="সময়" class="muted">'+escapeHtml(s.time||"")+'</td><td data-l="Status">'+(s.statusRaw && !s.local? '<span class="pill blue">'+escapeHtml(s.statusRaw)+'</span>' : statusPill(s))+'</td>'; ev.appendChild(tr); }); $("eventCount2").textContent=liveEvents.length+" টি"; if($("eventEmpty")) $("eventEmpty").style.display=liveEvents.length? "none":"block"; }
+    var onN=pages.filter(function(p){return p.on;}).length;
+    if($("audOn")) $("audOn").textContent=onN+" / "+pages.length;
+    if($("audOff")) $("audOff").textContent=(pages.length-onN)+" / "+pages.length;
+    var ar=$("audRows"); if(ar){ ar.innerHTML=""; pages.forEach(function(p){ var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>Audience signal '+(p.on?"ON আছে":"OFF আছে — OFF-ই থাকবে")+' • Inbox '+p.inbox+'</span></div>'; var sw=document.createElement("button"); sw.className="switch sm"; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked",p.on); sw.setAttribute("aria-label",p.name+" audience signal on off"); sw.disabled=!masterOn; sw.addEventListener("click",function(){ togglePage(p); }); row.appendChild(sw); ar.appendChild(row); }); }
+    var tot=signals.length, del=0, pen=0; signals.forEach(function(s){ if(s.status==="delivered") del++; if(s.status==="pending") pen++; });
+    if($("anTotal")) $("anTotal").textContent=tot;
+    if($("anDelivered")) $("anDelivered").textContent=del;
+    if($("anPending")) $("anPending").textContent=pen;
+    if($("anPagesOn")) $("anPagesOn").textContent=onN+" / "+pages.length;
+    var ab=$("anBreakdown"); if(ab){ var mx=1; pages.forEach(function(p){ var c=pageSignalCount(p.id); if(c>mx) mx=c; }); ab.innerHTML=""; pages.forEach(function(p){ var c=pageSignalCount(p.id); var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>'+c+' টি signal • '+pageDeliveredCount(p.id)+' delivered • '+p.orders+' order • '+p.inbox+' inbox</span><div style="height:8px;background:var(--surface-2);border-radius:99px;margin-top:7px;overflow:hidden"><div style="height:100%;width:'+Math.round(c/mx*100)+'%;background:var(--accent);border-radius:99px"></div></div></div><span class="num-cell">'+c+'</span>'; ab.appendChild(row); }); }
+    var cr=$("controlRows"); if(cr){ cr.innerHTML=""; pages.forEach(function(p){ var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>Signal '+(p.on?"ON আছে":"OFF আছে — OFF-ই থাকবে")+'</span></div>'; var sw=document.createElement("button"); sw.className="switch sm"; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked",p.on); sw.setAttribute("aria-label",p.name+" signal on off"); sw.disabled=!masterOn; sw.addEventListener("click",function(){ togglePage(p); }); row.appendChild(sw); cr.appendChild(row); }); var ct=$("controlMasterTag"); if(ct){ ct.textContent=masterOn?"MASTER ON":"MASTER OFF"; ct.className="tag"+(masterOn?"":" off"); } }
+  }
+
+  /* ----- Orders: Sheet থেকে live row — কোনো হাতে-বানানো order নেই ----- */
+  function renderOrders(){
+    var tb=$("orderRows"); if(!tb) return;
+    tb.innerHTML="";
+    $("ordCount").textContent=liveOrders.length+" টি";
+    $("ordEmpty").style.display=liveOrders.length? "none":"block";
+    liveOrders.slice().reverse().forEach(function(o){
+      var pg=pageBySheetName(rowPageName(o));
+      var cust=String(pickVal(o,["customerName","Customer Name","customer","Customer","name","Name"])||"").trim() || String(pickVal(o,["psid","PSID"])||"").trim() || "—";
+      var model=String(pickVal(o,["model","Model","bike","Bike","item","Item"])||"—");
+      var amt=pickVal(o,["price","Price","amount","Amount","total","Total"]);
+      var adv=pickVal(o,["advancePaid","Advance Paid","advance","Advance"]);
+      var mob=String(pickVal(o,["mobile","Mobile","phone","Phone","number","Number"])||"");
+      var addr=String(pickVal(o,["address","Address","deliveryAddress","Delivery Address"])||"");
+      var path=String(pickVal(o,["path","Path","type","Type","orderType","Order Type"])||"");
+      var stRaw=String(pickVal(o,["status","Status"])||"");
+      var inv=String(pickVal(o,["invoice","Invoice","invoiceNo","Invoice No","invoiceNumber"])||"");
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td data-l="Customer"><b>'+escapeHtml(cust)+'</b></td>'+
+        '<td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(o)||"—"))+'</td>'+
+        '<td data-l="Bike / Model">'+escapeHtml(model)+'</td>'+
+        '<td data-l="Amount"><span class="num-cell">'+(amt!==""? escapeHtml(String(amt))+" টাকা":"—")+'</span>'+(adv!==""? '<br><span class="muted" style="font-size:12px">Advance: '+escapeHtml(String(adv))+' টাকা</span>':'')+'</td>'+
+        '<td data-l="Mobile · Address">'+(mob? '<span class="num-cell">'+escapeHtml(mob)+'</span>':'')+(addr? (mob? '<br>':'')+'<span class="muted">'+escapeHtml(addr)+'</span>' : (mob? '' : '—'))+'</td>'+
+        '<td data-l="Path">'+(path? '<span class="pill blue">'+escapeHtml(path)+'</span>':'—')+'</td>'+
+        '<td data-l="Status">'+(stRaw? '<span class="pill blue">'+escapeHtml(stRaw)+'</span>' : '<span class="pill amber">● Processing</span>')+'</td>'+
+        '<td data-l="Invoice · Date">'+(inv? '<span class="num-cell">'+escapeHtml(inv)+'</span><br>' : '')+'<span class="muted">'+escapeHtml(rowDateTxt(o))+'</span></td>';
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ----- Dashboard + sidebar সংখ্যা live data থেকে ----- */
+  function renderDash(){
+    var totalInbox=0, withInbox=0;
+    pages.forEach(function(p){ totalInbox+=p.inbox; if(p.inbox>0) withInbox++; });
+    if($("dashOrders")) $("dashOrders").textContent=orders.length;
+    if($("dashInbox")) $("dashInbox").textContent=totalInbox;
+    if($("dashInboxPages")) $("dashInboxPages").textContent=withInbox+" / "+pages.length;
+    if($("sideOrdCount")) $("sideOrdCount").textContent=liveOrders.length;
+    if($("sideInboxCount")) $("sideInboxCount").textContent=totalInbox;
+    if($("inboxTotal")) $("inboxTotal").textContent=totalInbox;
+    if($("inboxHeadTotal")) $("inboxHeadTotal").textContent=totalInbox;
+  }
+
+  /* ----- Chatbox: Page-এর people-দের সাথে কথা ----- */
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]; }); }
+  function nowTime(){ var now=new Date(); var hh=now.getHours(), mm=("0"+now.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12; return "আজ "+hh+":"+mm+" "+ap; }
+  function ensureChats(pid){
+    if(chats[pid]) return chats[pid];
+    /* Chat শুধু Sheet Inbox-এর আসল message থেকে — signal record থেকে কোনো chat বানানো হয় না */
+    chats[pid]=[];
+    return chats[pid];
+  }
+  function activeChatObj(){
+    if(!inboxOpen || !activeChat) return null;
+    var list=ensureChats(inboxOpen), found=null;
+    list.forEach(function(c){ if(c.id===activeChat) found=c; });
+    return found;
+  }
+  function renderThread(){
+    var th=$("inboxThread"); if(!th) return;
+    th.innerHTML="";
+    var c=activeChatObj();
+    $("inboxThreadEmpty").style.display=c? "none":"block";
+    $("inboxMsgSend").disabled=!c;
+    $("inboxMsgInput").disabled=!c;
+    if(!c) return;
+    if(!c.msgs.length && c.lastTextFallback){
+      var fd=document.createElement("div"); fd.className="bubble";
+      fd.innerHTML=escapeHtml(c.lastTextFallback)+"<small>শেষ message • "+escapeHtml(c.name)+"</small>";
+      th.appendChild(fd); return;
+    }
+    if(!c.msgs.length){
+      var nd=document.createElement("div"); nd.className="empty"; nd.textContent="এই contact-এর এখনো কোনো message নেই — নিচে লিখে কথা শুরু করুন।";
+      th.appendChild(nd); return;
+    }
+    c.msgs.forEach(function(m){
+      var d=document.createElement("div");
+      d.className="bubble"+(m.who==="out"? " out":"");
+      d.innerHTML=escapeHtml(m.text)+"<small>"+escapeHtml(m.time)+(m.who==="out"? " • আপনি":" • "+escapeHtml(c.name))+"</small>";
+      th.appendChild(d);
+    });
+    th.scrollTop=th.scrollHeight;
+  }
+  function fmtContactTime(c){
+    var ts=contactLastTs(c);
+    if(!ts) return "";
+    var d=new Date(ts), now=new Date();
+    var sameDay=d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+    if(sameDay){ var hh=d.getHours(), mm=("0"+d.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12; return hh+":"+mm+" "+ap; }
+    var diff=(new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000;
+    var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    if(diff>0 && diff<7) return days[d.getDay()];
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getDate()+" "+mon[d.getMonth()];
+  }
+  function avatarHtmlFor(c){
+    if(c.avatarUrl && /^https?:\/\//i.test(c.avatarUrl)){
+      return '<span class="person-avatar"><img src="'+escapeHtml(c.avatarUrl)+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+escapeHtml(initialsFor(c.name,c.psid))+'\'"><span class="fb-badge">f</span></span>';
+    }
+    return '<span class="person-avatar" style="background:'+avatarColorFor(c.psid||c.name)+'">'+escapeHtml(initialsFor(c.name,c.psid))+'<span class="fb-badge">f</span></span>';
+  }
+  function lastPreviewFor(c){
+    if(c.msgs && c.msgs.length){ var m=c.msgs[c.msgs.length-1]; return {text:(m.who==="out"? "You: ":"")+m.text, out:m.who==="out"}; }
+    if(c.lastTextFallback) return {text:c.lastTextFallback, out:false};
+    return {text:"কোনো message নেই", out:false};
+  }
+  function renderChatbox(){
+    var v=$("inboxViewer"); if(!v) return;
+    if(!inboxOpen){ v.style.display="none"; return; }
+    var p=pageById(inboxOpen); if(!p){ v.style.display="none"; return; }
+    v.style.display="flex";
+    $("inboxViewerTitle").textContent="Chatbox — "+p.name;
+    var allForPage=ensureChats(inboxOpen);
+    $("inboxViewerCount").textContent=allForPage.length+" contact • "+p.inbox+" inbox";
+    if($("chatContactCount")) $("chatContactCount").textContent=allForPage.length+" জন";
+    if($("chatPopAvatar")) $("chatPopAvatar").textContent=p.mark;
+    $("chatPageSelect").value=inboxOpen;
+    if($("inboxPageSwitch")) $("inboxPageSwitch").value=inboxOpen;
+    var list=ensureChats(inboxOpen);
+    if(activeChat && !activeChatObj()) activeChat=null;
+    if(!activeChat){ for(var i=0;i<list.length;i++){ if(!list[i].archived){ activeChat=list[i].id; break; } } }
+    document.querySelectorAll("[data-chatfilter]").forEach(function(ch){ ch.classList.toggle("active", ch.getAttribute("data-chatfilter")===chatFilter); });
+    var q=($("chatSearch")? $("chatSearch").value.trim().toLowerCase() : "");
+    var shown=list.filter(function(c){
+      if(chatFilter==="unread" && (c.archived || !(c.unread>0))) return false;
+      if(chatFilter==="starred" && (!c.starred || c.archived)) return false;
+      if(chatFilter==="follow" && (!c.follow || c.archived)) return false;
+      if(chatFilter==="archived" && !c.archived) return false;
+      if(chatFilter==="all" && c.archived) return false;
+      if(q && c.name.toLowerCase().indexOf(q)===-1 && String(c.psid||"").toLowerCase().indexOf(q)===-1 && !(c.msgs.length && c.msgs[c.msgs.length-1].text.toLowerCase().indexOf(q)>-1) && !(c.lastTextFallback && c.lastTextFallback.toLowerCase().indexOf(q)>-1)) return false;
+      return true;
+    });
+    contactFiltered=shown;
+    var fkey=inboxOpen+"|"+chatFilter+"|"+q;
+    if(fkey!==contactFilterKey){ contactFilterKey=fkey; if(contactPreserveScroll==null) contactVisible=CONTACT_PAGE_SIZE; }
+    var pl=$("chatPeople");
+    var prevScroll=(contactPreserveScroll!=null? contactPreserveScroll : null);
+    pl.innerHTML="";
+    if(inboxReloading){
+      pl.innerHTML='<div class="contacts-spinner"><span class="spinner lg"></span><span>সব contact load হচ্ছে…</span></div>';
+      $("chatPeopleEmpty").style.display="none";
+      renderQuickReplies(); renderThread(); return;
+    }
+    $("chatPeopleEmpty").style.display=shown.length? "none":"block";
+    $("chatPeopleEmpty").textContent= list.length? "এই filter-এ কোনো chat নেই।" : (liveLoaded? "getPeople-এ এই Page-এর এখনো কোনো contact নেই।" : "এই Page-এ এখনো কোনো contact নেই — Reload চাপুন, অথবা উপরে নাম লিখে নতুন chat শুরু করুন।");
+    var visibleList=shown.slice(0, contactVisible);
+    visibleList.forEach(function(c){
+      var wrap=document.createElement("div");
+      var b=document.createElement("button");
+      b.className="person"+(c.id===activeChat? " active":"")+(c.unread>0? " unread":"");
+      var prev=lastPreviewFor(c);
+      var tme=fmtContactTime(c);
+      var metaIc="";
+      if(c.starred) metaIc+=' <span class="person-meta-ic" title="Star">★</span>';
+      if(c.follow) metaIc+=' <span class="person-meta-ic" title="Follow-up">◷</span>';
+      if(c.archived) metaIc+=' <span class="person-meta-ic">Archived</span>';
+      var seenIc=(prev.out && !(c.unread>0))? '<span class="person-meta-ic" title="Seen / sent">✓✓</span>' : '';
+      b.innerHTML=avatarHtmlFor(c)+'<span class="person-main"><span class="person-top"><b>'+escapeHtml(c.name)+'</b>'+(tme? '<span class="person-time">'+escapeHtml(tme)+'</span>':'')+'</span><span class="person-last"><span class="txt">'+escapeHtml(prev.text)+'</span>'+seenIc+metaIc+(c.unread>0? '<span class="unread-dot" aria-label="Unread"></span>':'')+'</span></span>';
+      b.setAttribute("aria-label", c.name+" — "+prev.text);
+      b.addEventListener("click", function(){ activeChat=c.id; c.unread=0; renderAll(); });
+      wrap.appendChild(b);
+      if(c.id!==activeChat){ pl.appendChild(wrap); return; }
+      var acts=document.createElement("div"); acts.className="person-actions";
+      acts.innerHTML='<button class="btn small" data-a="star">'+(c.starred? "★ Star করা":"☆ Star")+'</button>'+
+        '<button class="btn small" data-a="read">'+(c.unread>0? "✓ Read করুন":"Unread করুন")+'</button>'+
+        '<button class="btn small" data-a="follow">'+(c.follow? "Follow-up ✓":"Follow-up")+'</button>'+
+        '<button class="btn small" data-a="archive">'+(c.archived? "Unarchive":"Archive")+'</button>'+
+        '<button class="btn small danger" data-a="del">Delete</button>';
+      acts.querySelectorAll("[data-a]").forEach(function(ab){
+        ab.addEventListener("click", function(){
+          var a=ab.getAttribute("data-a");
+          if(a==="star"){ c.starred=!c.starred; toast(c.name+(c.starred? " — ★ Star করা হয়েছে":" — Star সরানো হয়েছে")); }
+          else if(a==="read"){ c.unread= c.unread>0? 0:1; toast(c.name+(c.unread>0? " — Unread করা হয়েছে":" — Read করা হয়েছে")); }
+          else if(a==="follow"){ c.follow=!c.follow; toast(c.name+(c.follow? " — Follow-up list-এ গেছে":" — Follow-up থেকে সরানো হয়েছে")); }
+          else if(a==="archive"){ c.archived=!c.archived; if(c.archived && activeChat===c.id) activeChat=null; toast(c.name+(c.archived? " — Archive হয়েছে":" — Unarchive হয়েছে")); }
+          else if(a==="del"){ openModal(c.name+"-এর chat delete করবেন?", "এই chat আর তার সব message মুছে যাবে।", function(){ var arr=ensureChats(inboxOpen); var ix=arr.indexOf(c); if(ix>-1) arr.splice(ix,1); if(activeChat===c.id) activeChat=null; toast("Chat delete হয়েছে"); renderAll(); }); return; }
+          renderAll();
+        });
+      });
+      wrap.appendChild(acts);
+      pl.appendChild(wrap);
+    });
+    if(shown.length>visibleList.length){
+      var more=document.createElement("div");
+      more.className="contacts-spinner"; more.id="contactsLoadMore";
+      more.innerHTML= contactLoading? '<span class="spinner"></span><span>আরো contact load হচ্ছে…</span>' : '<span>নিচে scroll করলে আরো contact আসবে — '+visibleList.length+' / '+shown.length+' দেখাচ্ছে</span>';
+      pl.appendChild(more);
+    } else if(shown.length>CONTACT_PAGE_SIZE){
+      var end=document.createElement("div"); end.className="contacts-end"; end.textContent="সব contact দেখানো হয়েছে — "+shown.length+" জন"; pl.appendChild(end);
+    }
+    if(prevScroll!=null){ pl.scrollTop=prevScroll; contactPreserveScroll=null; }
+    renderQuickReplies();
+    renderThread();
+  }
+  function loadMoreContacts(){
+    if(contactLoading || inboxReloading) return;
+    if(contactVisible>=contactFiltered.length) return;
+    contactLoading=true;
+    var pl=$("chatPeople");
+    var sentinel=$("contactsLoadMore");
+    if(sentinel) sentinel.innerHTML='<span class="spinner"></span><span>আরো contact load হচ্ছে…</span>';
+    var keepScroll= pl? pl.scrollTop : 0;
+    setTimeout(function(){
+      contactVisible+=CONTACT_PAGE_SIZE;
+      contactLoading=false;
+      contactPreserveScroll=keepScroll;
+      renderChatbox();
+    }, 380);
+  }
+  function reloadContacts(){
+    contactVisible=CONTACT_PAGE_SIZE; contactLoading=false; contactPreserveScroll=null;
+    toast("Reload হচ্ছে — getPeople থেকে সব contact আবার আনা হচ্ছে…");
+    loadLive();
+  }
+
+  /* ----- Quick Reply templates (ব্যবসার আসল নিয়ম অনুযায়ী) ----- */
+  var QUICK=[
+    {label:"স্বাগতম", text:function(p){ return "আসসালামু আলাইকুম স্যার, "+p.name+"-এ স্বাগতম। কোন বাইকটির ব্যাপারে জানতে চাইছেন?"; }},
+    {label:"মডেল জানতে চান", text:function(){ return "স্যার, কোন মডেলের বাইকটি চাইছেন? মডেলটা বললে সঠিক দামটা জানিয়ে দিচ্ছি।"; }},
+    {label:"Booking নিয়ম", text:function(){ return "স্যার, অর্ডার করতে ৩,০০০ টাকা advance booking লাগে। Customs auction paper আপনার নামেই হবে, invoice পাবেন, বাইক home delivery যাবে। বাকি টাকা বাইক হাতে পাওয়ার পর।"; }},
+    {label:"EMI নিয়ম", text:function(){ return "স্যার, EMI-তে ৫,০০০ টাকা downpayment, বাকি টাকা মাসে কমপক্ষে ৫,০০০ টাকা করে দিতে হয়।"; }},
+    {label:"Delivery", text:function(){ return "স্যার, delivery charge আলাদা নেই — বাইকের দামের ভিতরেই আছে। সারা বাংলাদেশে home delivery হয়।"; }},
+    {label:"Documents", text:function(){ return "স্যার, অর্ডারের জন্য লাগবে — NID কপি, delivery address, mobile number, আপনার ছবি, আর পছন্দের বাইকের sample ছবি।"; }}
+  ];
+  function renderQuickReplies(){
+    var box=$("quickReplies"); if(!box) return;
+    box.innerHTML="";
+    if(!inboxOpen) return;
+    var p=pageById(inboxOpen);
+    QUICK.forEach(function(qr){
+      var b=document.createElement("button");
+      b.className="btn small"; b.textContent=qr.label;
+      b.addEventListener("click", function(){ var inp=$("inboxMsgInput"); inp.value=qr.text(p); inp.focus(); });
+      box.appendChild(b);
+    });
+  }
+
+  /* ----- Inbox Maintenance summary ----- */
+  function pageUnreadChats(pid){ var n=0; ensureChats(pid).forEach(function(c){ if(c.unread>0 && !c.archived) n++; }); return n; }
+  function renderInboxSummary(){
+    var t=0,u=0,s=0,f=0,a=0;
+    pages.forEach(function(p){ ensureChats(p.id).forEach(function(c){ t++; if(c.unread>0 && !c.archived) u++; if(c.starred) s++; if(c.follow) f++; if(c.archived) a++; }); });
+    if($("msTotalChats")) $("msTotalChats").textContent=t;
+    if($("msUnread")) $("msUnread").textContent=u;
+    if($("msStarred")) $("msStarred").textContent=s;
+    if($("msFollow")) $("msFollow").textContent=f;
+    if($("msArchived")) $("msArchived").textContent=a;
+  }
+
+  function renderAll(){ renderPages(); renderSignals(); renderStats(); renderMaster(); renderDerived(); renderOrders(); renderDash(); renderChatbox(); renderInboxSummary(); }
+
+  /* ----- Routing: sidebar click = alada page, sob ek page-e na ----- */
+  var ROUTES={dashboard:1,pages:1,signals:1,orders:1,payments:1,invoice:1,people:1,lead:1,inbox:1,audience:1,events:1,control:1,analysis:1};
+  var SUBS={dashboard:"Dashboard — শুধু Dashboard-এর হিসাব",pages:"Pages — শুধু Page List",signals:"Signal Panel — Control, Stats আর Signal Table",orders:"Orders — শুধু Order-এর page",payments:"Payments — শুধু Payment-এর page",invoice:"Invoice — শুধু Invoice-এর page",people:"People — শুধু People-এর page",lead:"Lead Center — শুধু Lead-এর page",inbox:"Inbox — শুধু Inbox-এর page",audience:"Audience — শুধু Audience-এর page",events:"Events — শুধু Signal Events-এর page",control:"Control Panel — প্রতি Page-এর Signal ON/OFF",analysis:"Analysis — শুধু Analysis-এর page"};
+  function currentRoute(){ var h=(location.hash||"").replace(/^#\/?/,"").split("/")[0]; return ROUTES[h]?h:"dashboard"; }
+  function showView(){
+    var r=currentRoute();
+    document.querySelectorAll(".view").forEach(function(v){ v.classList.toggle("active", v.getAttribute("data-route")===r); });
+    document.querySelectorAll("[data-view]").forEach(function(a){ a.classList.toggle("active", a.getAttribute("data-view")===r); });
+    if($("viewSub")) $("viewSub").textContent=SUBS[r]||SUBS.dashboard;
+    window.scrollTo(0,0);
+    var sb2=$("sidebar"), sc2=$("scrim"); if(sb2) sb2.classList.remove("open"); if(sc2) sc2.classList.remove("show");
+  }
+  window.addEventListener("hashchange", showView);
+
+  /* ----- Controls ----- */
+  var sel=$("testPageSelect");
+  pages.forEach(function(p){
+    var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; sel.appendChild(o);
+  });
+
+  $("masterSwitch").addEventListener("click", function(){
+    if(masterOn){
+      masterOn=false;
+      toast("Master Signal এখন OFF — কোনো Page-এর signal যাবে না, OFF-ই থাকবে");
+      renderAll();
+    } else {
+      openModal("Master Signal আবার ON করবেন?",
+        "ON করলে যেসব Page ON আছে সেগুলোতে signal যাবে। OFF রাখতে চাইলে 'না, থাক' চাপুন — তাহলে OFF-ই থাকবে।",
+        function(){ masterOn=true; toast("Master Signal এখন ON"); renderAll(); },
+        "হ্যাঁ, ON করুন");
+    }
+  });
+  $("autoSwitch").addEventListener("click", function(){
+    autoDeliver=!autoDeliver;
+    toast("Auto Deliver এখন "+(autoDeliver?"ON":"OFF"));
+    renderMaster();
+  });
+
+  function sendTestSignal(p){
+    if(!masterOn){ toast("Master Signal OFF আছে — আগে ON করুন"); return; }
+    if(!p) return;
+    if(!p.on){ toast(p.name+"-এর signal OFF আছে — এই Page-এ signal যাবে না"); return; }
+    var now=new Date();
+    var hh=now.getHours(), mm=("0"+now.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12;
+    var ts={id:++seq, pageId:p.id, pageName:p.name, type:"Test Signal", who:"", source:"Panel test", time:"আজ "+hh+":"+mm+" "+ap, today:true, status: autoDeliver? "delivered":"pending", statusRaw:"", local:true};
+    localSignals.push(ts); signals.push(ts);
+    toast(p.name+"-এ Test Signal গেছে (SIG-"+seq+")");
+    renderAll();
+  }
+  $("testSignalBtn").addEventListener("click", function(){ sendTestSignal(pageById(sel.value)); });
+
+  $("clearDeliveredBtn").addEventListener("click", function(){
+    var before=localSignals.length;
+    localSignals=localSignals.filter(function(s){ return s.status!=="delivered"; });
+    signals=signals.filter(function(s){ return !(s.local && s.status==="delivered"); });
+    toast(before-localSignals.length ? (before-localSignals.length)+"টি delivered test signal সরানো হয়েছে (Sheet-এর event record Sheet-এই থাকে)" : "সরানোর মতো delivered test signal ছিল না");
+    renderAll();
+  });
+
+  $("refreshBtn").addEventListener("click", function(){ renderAll(); loadLive(); toast("Sheet থেকে live data আবার আনা হচ্ছে…"); });
+
+  /* ----- Orders: কোনো form নেই — order শুধু Sheet থেকে live আসে ----- */
+
+  /* ----- People: search ----- */
+  var pSearch=$("peopleSearch");
+  if(pSearch){ pSearch.addEventListener("input", function(){
+    var q=pSearch.value.trim().toLowerCase();
+    $("peopleRows").querySelectorAll("tr").forEach(function(tr){
+      tr.style.display=(!q || tr.textContent.toLowerCase().indexOf(q)>-1)? "":"none";
+    });
+  }); }
+
+  /* ----- Lead Center: filter ----- */
+  var lfSel=$("leadFilter");
+  if(lfSel){ lfSel.addEventListener("change", function(){ renderAll(); }); }
+
+  /* ----- Control Panel: sob ON / sob OFF ----- */
+  $("allOnBtn").addEventListener("click", function(){ openModal("সব Page-এর signal ON করবেন?", "৬টা Page-এরই signal ON হয়ে যাবে। OFF রাখতে চাইলে 'না, থাক' চাপুন।", function(){ pages.forEach(function(p){ p.on=true; persistSignal(p); }); toast("সব Page-এর signal ON হয়েছে, Sheet-এ save হচ্ছে"); renderAll(); }, "হ্যাঁ, সব ON করুন"); });
+  $("allOffBtn").addEventListener("click", function(){ pages.forEach(function(p){ p.on=false; persistSignal(p); }); toast("সব Page-এর signal OFF হয়েছে — Sheet-এ save হয়েছে, OFF-ই থাকবে"); renderAll(); });
+
+  /* ----- Inbox: Page switch ----- */
+  var inboxSwitch=$("inboxPageSwitch");
+  pages.forEach(function(p){ var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; inboxSwitch.appendChild(o); });
+  function openInboxPage(pid){
+    inboxOpen=pid; activeChat=null; contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderAll();
+    var v=$("inboxViewer"); if(v) v.classList.remove("min");
+    toast(pageById(pid).name+"-এর inbox খুলেছে");
+  }
+  inboxSwitch.addEventListener("change", function(){ openInboxPage(inboxSwitch.value); });
+  $("inboxSwitchBtn").addEventListener("click", function(){ openInboxPage(inboxSwitch.value); });
+
+  /* ----- Chatbox wiring ----- */
+  var chatSel=$("chatPageSelect");
+  pages.forEach(function(p){ var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; chatSel.appendChild(o); });
+  chatSel.addEventListener("change", function(){ inboxOpen=chatSel.value; activeChat=null; contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderAll(); toast(pageById(inboxOpen).name+"-এর chatbox খুলেছে"); });
+  if($("chatReloadBtn")) $("chatReloadBtn").addEventListener("click", reloadContacts);
+  if($("chatListReloadBtn")) $("chatListReloadBtn").addEventListener("click", reloadContacts);
+  var chatPeopleEl=$("chatPeople");
+  if(chatPeopleEl){ chatPeopleEl.addEventListener("scroll", function(){
+    if(chatPeopleEl.scrollTop + chatPeopleEl.clientHeight >= chatPeopleEl.scrollHeight - 90) loadMoreContacts();
+  }); }
+  $("inboxClose").addEventListener("click", function(){ inboxOpen=null; renderChatbox(); });
+  $("chatMinBtn").addEventListener("click", function(){ $("inboxViewer").classList.toggle("min"); });
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && inboxOpen){ inboxOpen=null; renderChatbox(); } });
+  $("newChatBtn").addEventListener("click", function(){
+    if(!inboxOpen) return;
+    var name=$("newChatName").value.trim() || "নতুন Customer";
+    var c={id:"c"+(++chatSeq), name:name, psid:name, unread:0, starred:false, archived:false, follow:false, msgs:[], lastTs:Date.now(), avatarUrl:"", lastTextFallback:""};
+    ensureChats(inboxOpen).unshift(c);
+    activeChat=c.id;
+    $("newChatName").value="";
+    renderChatbox();
+    toast(name+"-এর সাথে নতুন chat শুরু হয়েছে");
+  });
+  function sendChatMsg(){
+    var c=activeChatObj(); if(!c) return;
+    var txt=$("inboxMsgInput").value.trim(); if(!txt) return;
+    c.msgs.push({who:"out", text:txt, time:nowTime()});
+    var arr=ensureChats(inboxOpen); var ix=arr.indexOf(c); if(ix>0){ arr.splice(ix,1); arr.unshift(c); }
+    $("inboxMsgInput").value="";
+    renderChatbox();
+    /* আসল reply Apps Script দিয়ে পাঠানো + Sheet Inbox-এ log */
+    var psid=c.psid || c.name;
+    apiPost({action:"sendChatMessage", psid:psid, message:txt})
+      .then(function(res){
+        if(res && res.ok){ toast("Reply পাঠানো হয়েছে আর Sheet Inbox-এ log হয়েছে"); }
+        else { toast("Reply panel-এ দেখাচ্ছে, কিন্তু Sheet-এ পাঠানো যায়নি — connection আবার চেষ্টা করুন"); }
+      })
+      .catch(function(){ toast("Reply panel-এ দেখাচ্ছে, কিন্তু Sheet connection পাওয়া যায়নি"); });
+  }
+  $("inboxMsgSend").addEventListener("click", sendChatMsg);
+  $("inboxMsgInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); sendChatMsg(); } });
+
+  /* ----- Chatbox maintenance wiring: filter, search, sob Read ----- */
+  document.querySelectorAll("[data-chatfilter]").forEach(function(ch){
+    ch.addEventListener("click", function(){ chatFilter=ch.getAttribute("data-chatfilter"); contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderChatbox(); });
+  });
+  var chatSearchEl=$("chatSearch");
+  if(chatSearchEl){ chatSearchEl.addEventListener("input", function(){ contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderChatbox(); }); }
+  $("markAllReadBtn").addEventListener("click", function(){
+    if(!inboxOpen) return;
+    ensureChats(inboxOpen).forEach(function(c){ c.unread=0; });
+    toast(pageById(inboxOpen).name+"-এর সব chat Read করা হয়েছে");
+    renderAll();
+  });
+
+  /* ----- Invoice: download ----- */
+  $("invDownload").addEventListener("click", function(){
+    if(!currentInvPage){ toast("আগে একটা Page-এর Invoice দেখুন"); return; }
+    var p=currentInvPage;
+    var txt="B2B Admin Panel — Invoice Slip\nInvoice No: INV-"+p.id.toUpperCase()+"-2026\nPage: "+p.name+" ("+p.bn+")\nমোট Order (Sheet Live): "+p.orders+"\nInbox (Sheet Live): "+p.inbox+"\nউৎস: Google Sheet (Apps Script Version 47)\n";
+    var blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="invoice-"+p.id+".txt"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+    toast(p.name+"-এর invoice download হয়েছে");
+  });
+
+  /* ----- Day / Dark Mode ----- */
+  function renderTheme(){
+    var dark=document.documentElement.getAttribute("data-theme")==="dark";
+    var b=$("themeBtn");
+    b.textContent = dark? "🌙 Dark Mode" : "☀ Day Mode";
+    b.setAttribute("aria-pressed", dark);
+  }
+  $("themeBtn").addEventListener("click", function(){
+    var dark=document.documentElement.getAttribute("data-theme")==="dark";
+    document.documentElement.setAttribute("data-theme", dark? "light":"dark");
+    renderTheme();
+    toast(dark? "Day Mode ON — halka theme" : "Dark Mode ON — Day Mode-e firte abar button chapun");
+  });
+  renderTheme();
+
+  /* ----- Modal ----- */
+  var pendingAction=null;
+  function openModal(title, text, fn, okLabel){
+    $("modalTitle").textContent=title; $("modalText").textContent=text;
+    $("modalOk").textContent = okLabel || "হ্যাঁ, Delete করুন";
+    pendingAction=fn; $("modalBack").classList.add("open");
+  }
+  $("modalCancel").addEventListener("click", function(){ $("modalBack").classList.remove("open"); pendingAction=null; });
+  $("modalBack").addEventListener("click", function(e){ if(e.target===this){ this.classList.remove("open"); pendingAction=null; } });
+  $("modalOk").addEventListener("click", function(){
+    $("modalBack").classList.remove("open");
+    if(pendingAction){ var f=pendingAction; pendingAction=null; f(); }
+  });
+
+  /* ----- Mobile sidebar ----- */
+  var sb=$("sidebar"), scrim=$("scrim");
+  $("menuBtn").addEventListener("click", function(){ sb.classList.add("open"); scrim.classList.add("show"); });
+  scrim.addEventListener("click", function(){ sb.classList.remove("open"); scrim.classList.remove("show"); });
+  sb.querySelectorAll("a").forEach(function(a){ a.addEventListener("click", function(){ sb.classList.remove("open"); scrim.classList.remove("show"); }); });
+  /* Active state hashchange / showView thekei hoy — click-e scroll jump hobe na */
+
+  renderAll();
+  showView();
+  loadLive();
+})();
+</script>
+</body>
+</html>
