@@ -1,0 +1,2024 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>B2B Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f6f4; --surface:#ffffff; --surface-2:#eef3f0; --ink:#13211b; --muted:#5c6f66;
+  --line:#dce6e0; --green:#0b3d2c; --green-2:#0f5138; --green-3:#146447; --accent:#1a9e6b;
+  --accent-soft:#e2f4ec; --amber:#b7791f; --amber-soft:#fdf0d5; --red:#b42318; --red-soft:#fdeceb;
+  --blue:#175cd3; --blue-soft:#e8effd; --radius:14px; --shadow:0 1px 2px rgba(11,61,44,.06),0 8px 24px -12px rgba(11,61,44,.18);
+}
+/* Day Mode = default (light). Dark Mode turns on only via the button — the page will not go dark on its own even if the system is dark */
+html[data-theme="dark"]{
+  --bg:#0e1512; --surface:#16211c; --surface-2:#1b2a23; --ink:#e8f0ec; --muted:#9db3a8; --line:#26382f; --accent-soft:#123527; --amber-soft:#3a2c10; --red-soft:#3d1713; --blue-soft:#16294d; --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px -12px rgba(0,0,0,.6);
+  color-scheme:dark;
+}
+html[data-theme="light"]{ color-scheme:light; }
+.theme-btn[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:#fff}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;font-family:"Manrope",system-ui,sans-serif;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.45}
+.view{display:none}
+.view.active{display:block}
+.view-head{margin:0 0 14px}
+.view-head h2{font-family:"Manrope";font-size:20px;margin:0}
+.view-head p{margin:3px 0 0;color:var(--muted);font-size:13.5px}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+
+/* ---------- Layout ---------- */
+.layout{display:grid;grid-template-columns:264px 1fr;min-height:100vh}
+.sidebar{background:var(--green);color:#dcefe6;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{min-width:0;padding:22px 26px 90px}
+.wrap{max-width:1180px;margin:0 auto}
+
+/* ---------- Sidebar ---------- */
+.brand{padding:18px 18px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.brand-badge{display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:7px 12px 7px 8px;border-radius:999px}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:#f2c94c;color:#0b3d2c;display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:12px;letter-spacing:.02em}
+.brand-name{font-family:"Manrope";font-weight:800;font-size:15px;color:#fff;line-height:1.1}
+.brand-sub{font-size:11.5px;color:#a9c9ba;line-height:1.2}
+.menu-label{padding:16px 20px 6px;font-size:11px;letter-spacing:.14em;color:#8fb5a3;font-weight:600}
+.nav{padding:0 12px;display:grid;gap:3px}
+.nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;text-decoration:none;color:#cfe6da;font-weight:500;font-size:14.5px}
+.nav a svg{width:18px;height:18px;flex:none;opacity:.9}
+.nav a:hover{background:rgba(255,255,255,.07);color:#fff}
+.nav a.active{background:#fff;color:var(--green);font-weight:700}
+.nav a.active svg{opacity:1}
+.nav .count{margin-left:auto;background:rgba(255,255,255,.16);color:#fff;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px}
+.nav a.active .count{background:var(--accent-soft);color:var(--green-2)}
+.side-signal{margin:18px 12px 14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);border-radius:12px;padding:13px 14px}
+.side-signal h3{margin:0 0 2px;font-size:13.5px;color:#fff;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2ee59d;box-shadow:0 0 0 4px rgba(46,229,157,.18)}
+.dot.off{background:#f97066;box-shadow:0 0 0 4px rgba(249,112,102,.16)}
+.side-signal p{margin:0 0 11px;font-size:12.5px;color:#a9c9ba}
+.side-rows{display:grid;gap:6px;font-size:12.5px}
+.side-rows div{display:flex;justify-content:space-between;color:#cfe6da}
+.side-rows b{color:#fff;font-family:"Manrope"}
+.side-foot{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);font-size:12.5px;color:#a9c9ba}
+
+/* ---------- Switch ---------- */
+.switch{position:relative;width:46px;height:26px;flex:none;border:none;background:#cbd8d1;border-radius:999px;transition:.2s;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{left:23px}
+.switch.sm{width:40px;height:23px}
+.switch.sm::after{width:17px;height:17px}
+.switch.sm[aria-checked="true"]::after{left:20px}
+.switch:disabled{opacity:.45;cursor:not-allowed}
+
+/* ---------- Topbar ---------- */
+.topbar{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.topbar h1{font-family:"Manrope";font-size:26px;margin:0;letter-spacing:-.01em}
+.topbar .sub{color:var(--muted);font-size:13.5px;margin-top:2px}
+.top-actions{margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sync{display:flex;align-items:center;gap:9px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 13px;font-size:13px;box-shadow:var(--shadow)}
+.sync .pulse{width:9px;height:9px;border-radius:50%;background:var(--accent)}
+.sync small{display:block;color:var(--muted);font-size:11.5px}
+.saved-bar{display:none;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:-6px 0 16px;font-size:13.5px;box-shadow:var(--shadow)}
+.saved-bar.live{display:flex;background:var(--accent-soft);color:var(--green-3);border-color:transparent}
+.saved-bar.cached{display:flex;background:var(--amber-soft);color:#7a4a06;border-color:transparent}
+.saved-bar b{font-weight:700}
+.saved-bar span{opacity:.85;font-size:12.5px}
+.saved-bar .saved-time{margin-left:auto;font-weight:700;white-space:nowrap}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:11px;padding:9px 15px;font-weight:600;font-size:13.5px;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:var(--green-2)}
+.btn.danger{background:var(--red-soft);border-color:transparent;color:var(--red)}
+.btn.small{padding:6px 11px;font-size:12.5px;border-radius:9px}
+.menu-btn{display:none}
+
+/* ---------- Cards & grids ---------- */
+.grid-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:17px 18px;box-shadow:var(--shadow)}
+.stat.hero{background:var(--green);color:#fff;border-color:var(--green)}
+.stat .num{font-family:"Manrope";font-size:31px;font-weight:800;line-height:1}
+.stat .lbl{color:var(--muted);font-size:13.5px;margin-top:5px}
+.stat.hero .lbl{color:#bcdccf}
+.stat .hint{font-size:12px;color:var(--muted);margin-top:7px}
+.stat.hero .hint{color:#9fc6b4}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-head{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line)}
+.panel-head h2{font-size:16.5px;margin:0;font-family:"Manrope";font-weight:800}
+.panel-head .tag{margin-left:auto}
+.panel-body{padding:16px 18px}
+.tag{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--green-3)}
+.tag.off{background:var(--red-soft);color:var(--red)}
+.tag.amber{background:var(--amber-soft);color:var(--amber)}
+.tag.blue{background:var(--blue-soft);color:var(--blue)}
+
+.ctrl-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px dashed var(--line)}
+.ctrl-row:last-child{border-bottom:none}
+.ctrl-row .txt{flex:1;min-width:0}
+.ctrl-row .txt b{display:block;font-size:14.5px}
+.ctrl-row .txt span{font-size:12.5px;color:var(--muted)}
+select,input[type="text"]{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;max-width:100%}
+.ctrl-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kv .cell{background:var(--surface-2);border-radius:11px;padding:12px 13px}
+.kv .cell .n{font-family:"Manrope";font-weight:800;font-size:22px;line-height:1.05}
+.kv .cell .t{font-size:12.5px;color:var(--muted);margin-top:3px}
+.kv .wide{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.kv .wide .n{font-size:15px}
+
+/* ---------- Tables ---------- */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:640px}
+th{text-align:left;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding:11px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.page-cell{display:flex;align-items:center;gap:11px;min-width:170px}
+.avatar{width:38px;height:38px;border-radius:11px;background:var(--accent-soft);color:var(--green-3);display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:12px;flex:none}
+.page-cell b{display:block;font-size:14.5px;line-height:1.2}
+.page-cell span{font-size:12px;color:var(--muted)}
+.num-cell{font-family:"Manrope";font-weight:700}
+.muted{color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--accent-soft);color:var(--green-3)}
+.pill.off{background:var(--surface-2);color:var(--muted)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.blue{background:var(--blue-soft);color:var(--blue)}
+.row-actions{display:flex;gap:7px;flex-wrap:wrap}
+.icon-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--ink);border-color:var(--accent)}
+.icon-btn.danger:hover{color:var(--red);border-color:var(--red)}
+.empty{padding:28px 18px;text-align:center;color:var(--muted);font-size:14px}
+
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+/* ---------- Chatbox popup (professional, floating) ---------- */
+.chat-pop{position:fixed;right:22px;bottom:22px;width:min(920px,calc(100vw - 32px));height:min(680px,calc(100dvh - 84px));z-index:65;display:flex;flex-direction:column;border-radius:18px;box-shadow:0 30px 70px -18px rgba(6,30,20,.5),0 4px 14px rgba(6,30,20,.18);overflow:hidden;animation:chatPop .22s ease-out}
+@keyframes chatPop{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+.chat-pop-head{display:flex;align-items:center;gap:11px;padding:11px 14px;background:var(--green);color:#fff;flex:none}
+.chat-pop-avatar{background:#f2c94c;color:#0b3d2c;width:40px;height:40px;border-radius:12px}
+.chat-pop-title{min-width:0;flex:1}
+.chat-pop-title h2{font-size:15.5px;margin:0;font-family:"Manrope";font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-pop-status{display:flex;align-items:center;gap:6px;font-size:12px;color:#bcdccf;margin-top:1px}
+.chat-pop-status .dot{width:7px;height:7px;box-shadow:none}
+.chat-pop-select{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:9px;padding:7px 9px;font-size:13px;max-width:170px}
+.chat-pop-select option{color:#13211b}
+.chat-pop-btn{width:34px;height:34px;flex:none;border-radius:9px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:700}
+.chat-pop-btn:hover{background:rgba(255,255,255,.22)}
+.chat-pop.min .chat-pop-body{display:none}
+.chat-pop.min{height:auto}
+.chat-pop-body{flex:1;min-height:0;display:flex;flex-direction:column;padding:13px 16px 15px}
+.chat-filters{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center;flex:none}
+.chat-layout{display:grid;grid-template-columns:262px 1fr;gap:14px;flex:1;min-height:0}
+.chat-people-col{display:flex;flex-direction:column;min-height:0;min-width:0}
+.new-chat-row{display:flex;gap:7px;margin-bottom:10px;flex:none}
+#chatPeople{display:grid;gap:7px;align-content:start;overflow-y:auto;min-height:0;padding-right:3px;overscroll-behavior:contain;scrollbar-width:thin}
+.chat-convo{display:flex;flex-direction:column;min-height:0;min-width:0;border:1px solid var(--line);border-radius:13px;background:var(--surface-2);padding:12px}
+.quick-label{margin-top:10px;font-size:12.5px;color:var(--muted);flex:none}
+#quickReplies{display:flex;gap:7px;flex-wrap:wrap;margin-top:7px;flex:none}
+.chat-composer{display:flex;gap:9px;margin-top:12px;flex:none}
+.chat-composer input{flex:1;min-width:0;background:var(--surface)}
+
+.person{display:flex;gap:11px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:12px;padding:9px 10px;color:var(--ink);align-items:flex-start}
+.person:hover{background:var(--surface-2)}
+.person.active{border-color:transparent;background:var(--accent-soft)}
+.person-avatar{position:relative;width:46px;height:46px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:"Manrope";font-weight:800;font-size:14px;color:#fff;overflow:visible;background:var(--accent)}
+.person-avatar img{width:46px;height:46px;border-radius:50%;object-fit:cover;display:block}
+.person-avatar .fb-badge{position:absolute;right:-1px;bottom:-1px;width:16px;height:16px;border-radius:50%;background:#0084ff;color:#fff;display:grid;place-items:center;font-size:9px;font-weight:800;border:2px solid var(--surface);line-height:1}
+.person-main{flex:1;min-width:0}
+.person-top{display:flex;align-items:baseline;gap:8px}
+.person-top b{flex:1;min-width:0;font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.person.unread .person-top b{font-weight:800}
+.person-time{flex:none;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.person.unread .person-time{color:var(--accent);font-weight:700}
+.person-last{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin-top:2px;min-width:0}
+.person-last .txt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.person.unread .person-last .txt{color:var(--ink);font-weight:600}
+.unread-dot{width:9px;height:9px;border-radius:50%;background:#0084ff;flex:none}
+.person-meta-ic{flex:none;font-size:11px;color:var(--muted)}
+.person-actions{display:flex;gap:5px;margin:2px 0 6px 57px;flex-wrap:wrap}
+.person-actions .btn{padding:4px 8px;font-size:11.5px;border-radius:8px}
+.contacts-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex:none}
+.contacts-bar b{font-size:13px}
+.contacts-bar span{font-size:12px;color:var(--muted)}
+.contacts-bar .btn{margin-left:auto}
+.contacts-spinner{display:flex;align-items:center;justify-content:center;gap:9px;padding:14px 8px;color:var(--muted);font-size:12.5px}
+.spinner{width:22px;height:22px;border-radius:50%;border:3px solid var(--line);border-top-color:#0084ff;animation:spin .75s linear infinite;flex:none}
+.spinner.lg{width:30px;height:30px;border-width:3.5px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.contacts-end{padding:10px 8px;text-align:center;color:var(--muted);font-size:12px}
+.reload-spinning{animation:spin .75s linear infinite}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 13px;font-weight:600;font-size:13px;color:var(--ink)}
+.chip.active{background:var(--green);color:#fff;border-color:var(--green)}
+#inboxThread{display:grid;gap:9px;align-content:start;flex:1;min-height:0;overflow-y:auto;padding:4px 4px 4px 2px;overscroll-behavior:contain;scrollbar-width:thin;background:var(--surface);border:1px solid var(--line);border-radius:11px}
+.bubble{max-width:82%;background:var(--surface-2);border:1px solid var(--line);border-radius:13px;padding:9px 12px;font-size:14px;justify-self:start;word-break:break-word}
+.bubble small{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+.bubble.out{background:var(--green);color:#fff;border-color:var(--green);justify-self:end}
+.bubble.out small{color:#bcdccf}
+.quick a{display:block;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.quick a:hover{border-color:var(--accent)}
+.quick b{font-size:15px;display:block}
+.quick span{font-size:13px;color:var(--muted)}
+.section-title{font-family:"Manrope";font-size:17px;font-weight:800;margin:22px 0 11px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,80px);background:var(--green);color:#fff;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14px;box-shadow:0 12px 30px -8px rgba(0,0,0,.4);transition:.3s;z-index:60;max-width:calc(100vw - 32px);text-align:center}
+.toast.show{transform:translate(-50%,0)}
+.modal-back{position:fixed;inset:0;background:rgba(6,20,14,.55);display:none;place-items:center;z-index:70;padding:18px}
+.modal-back.open{display:grid}
+.modal{background:var(--surface);border-radius:16px;max-width:420px;width:100%;padding:22px;box-shadow:0 24px 60px -12px rgba(0,0,0,.45)}
+.modal h3{margin:0 0 7px;font-size:17px}
+.modal p{margin:0 0 18px;color:var(--muted);font-size:14px}
+.modal .row{display:flex;gap:10px;justify-content:flex-end}
+.scrim{display:none}
+
+/* ---------- Bottom nav (mobile) ---------- */
+.bottomnav{display:none}
+
+@media (max-width:960px){
+  .layout{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .sidebar.open{display:flex;position:fixed;inset:0 auto 0 0;width:272px;z-index:80;box-shadow:20px 0 50px rgba(0,0,0,.35)}
+  .scrim{display:block;position:fixed;inset:0;background:rgba(6,20,14,.5);z-index:75;opacity:0;pointer-events:none;transition:.25s}
+  .scrim.show{opacity:1;pointer-events:auto}
+  .main{padding:16px 14px 30px}
+  .menu-btn{display:inline-flex}
+  .grid-stats{grid-template-columns:1fr 1fr}
+  .grid-2,.quick{grid-template-columns:1fr}
+  .chat-pop{right:8px;left:8px;bottom:8px;width:auto;height:min(88dvh,760px)}
+  .chat-pop-head{flex-wrap:wrap}
+  .chat-pop-title{flex:1;min-width:130px}
+  .chat-pop-select{order:6;flex:1 1 100%;max-width:none}
+  .chat-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr}
+  .chat-people-col{max-height:168px}
+  #chatPeople{max-height:118px}
+  .bottomnav{display:grid;grid-template-columns:repeat(4,1fr);margin:0 10px 14px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 14px 34px -10px rgba(0,0,0,.3);padding:6px}
+  .bottomnav a{text-align:center;text-decoration:none;font-size:11.5px;color:var(--muted);padding:7px 2px;border-radius:11px;font-weight:600}
+  .bottomnav a.active{background:var(--accent-soft);color:var(--green-3)}
+  .bottomnav svg{width:19px;height:19px;display:block;margin:0 auto 2px}
+  /* Stack table rows as cards on phones */
+  table{min-width:0}
+  thead{display:none}
+  tbody tr{display:block;border-bottom:1px solid var(--line);padding:8px 4px}
+  tbody td{display:flex;justify-content:space-between;align-items:center;gap:14px;border-bottom:none;padding:7px 12px}
+  tbody td::before{content:attr(data-l);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+  tbody td:first-child::before{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}.chat-pop{animation:none}.spinner,.reload-spinning{animation-duration:1.6s}}
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <span class="brand-badge">
+        <span class="brand-mark">B2B</span>
+        <span><span class="brand-name">B2B Admin</span><br><span class="brand-sub">6 Pages • Orders • Signals</span></span>
+      </span>
+    </div>
+
+    <div class="menu-label">MENU</div>
+    <nav class="nav">
+      <a href="#/dashboard" data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>Dashboard</a>
+      <a href="#/pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Pages <span class="count">6</span></a>
+      <a href="#/signals" data-view="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a8 8 0 0 1 16 0"/><path d="M2 16a13 13 0 0 1 20 0"/><circle cx="12" cy="20" r="1.6" fill="currentColor"/></svg>Signal Panel</a>
+      <a href="#/orders" data-view="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1.5"/><circle cx="17" cy="20" r="1.5"/><path d="M2 3h3l2.6 12.5h10.7L21 7H6"/></svg>Orders <span class="count" id="sideOrdCount">0</span></a>
+      <a href="#/payments" data-view="payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>Payments</a>
+      <a href="#/invoice" data-view="invoice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>Invoice</a>
+      <a href="#/people" data-view="people"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.2 3.4-5 6.5-5s5.7 1.8 6.5 5"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M17.5 15.4c2 .6 3.4 2.1 4 4.6"/></svg>People</a>
+      <a href="#/lead" data-view="lead"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5h18l-7 8v5l-4 2v-7z"/></svg>Lead Center</a>
+      <a href="#/inbox" data-view="inbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>Inbox <span class="count" id="sideInboxCount">0</span></a>
+      <a href="#/audience" data-view="audience"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Audience</a>
+      <a href="#/events" data-view="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a>
+      <a href="#/control" data-view="control"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Control Panel</a>
+      <a href="#/analysis" data-view="analysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Analysis</a>
+    </nav>
+
+    <!-- Sidebar signal widget -->
+    <div class="side-signal">
+      <h3><span class="dot" id="sideDot"></span>Signal Panel</h3>
+      <p>Master signal is <b id="sideMasterTxt" style="color:#fff">ON</b></p>
+      <div class="side-rows">
+        <div><span>Total Signals</span><b id="sideTotal">0</b></div>
+        <div><span>Delivered</span><b id="sideDelivered">0</b></div>
+        <div><span>Page ON</span><b id="sidePagesOn">0 / 6</b></div>
+      </div>
+    </div>
+
+    <div class="side-foot">Open without a password —<br>for your own use only.</div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+    <div class="wrap">
+
+      <div class="topbar">
+        <div>
+          <button class="btn menu-btn" id="menuBtn" aria-label="Open menu">☰ Menu</button>
+          <h1>B2B Admin Panel</h1>
+          <div class="sub" id="viewSub">Dashboard — Dashboard overview only</div>
+        </div>
+        <div class="top-actions">
+          <div class="sync"><span class="pulse" id="syncDot"></span><span><span id="syncTitle">Sheet Live — connecting…</span><small id="syncSub">Loading Inbox, Orders, Payments, Events, People and Signal state from Apps Script (Version 47)</small></span></div>
+          <button class="btn theme-btn" id="themeBtn" aria-pressed="false" aria-label="Toggle day and dark mode">☀ Day Mode</button>
+          <button class="btn primary" id="refreshBtn">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="saved-bar" id="savedBar" role="status" aria-live="polite"></div>
+
+      <!-- Overview / Dashboard view -->
+      <section id="overview" class="view active" data-route="dashboard">
+        <div class="grid-stats">
+          <div class="stat hero"><div class="num">6</div><div class="lbl">Total Pages</div><div class="hint">All Pages are connected in this panel</div></div>
+          <div class="stat"><div class="num" id="dashOrders">0</div><div class="lbl">Total Orders</div><div class="hint">Live count from Sheet Orders</div></div>
+          <div class="stat"><div class="num" id="dashInbox">0</div><div class="lbl">Total Inbox</div><div class="hint">Live count from Sheet Inbox — all Pages combined</div></div>
+          <div class="stat"><div class="num" id="dashInboxPages">0 / 6</div><div class="lbl">Pages with Inbox</div><div class="hint" id="dashInboxHint">Loading live count from Sheet Inbox…</div></div>
+        </div>
+
+        <div class="panel" style="margin-bottom:16px">
+          <div class="panel-head">
+            <h2>PC Backup</h2>
+            <span class="tag blue" id="backupTag">SAVES TO YOUR SELECTED PC FOLDER</span>
+          </div>
+          <div class="panel-body">
+            <p style="margin:0 0 6px;font-size:14.5px"><b>Browser save is only temporary</b> — the real backup is written directly into the PC folder you select. Nothing goes to the Downloads folder.</p>
+            <p class="muted" style="margin:0 0 10px;font-size:13.5px" id="backupCounts">Inbox 0 • Orders 0 • Payments 0 • Events 0 • People 0 • Including Signal state — loading live data…</p>
+            <div id="backupFolderBox" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin:0 0 6px">
+              <span style="font-size:20px;line-height:1" aria-hidden="true">📁</span>
+              <div style="flex:1;min-width:200px">
+                <b style="display:block;font-size:14.5px" id="backupFolderName">No PC folder selected yet</b>
+                <span class="muted" style="font-size:12.5px" id="backupFolderInfo">Click “Backup Now” or “Select Folder” — the browser folder picker will open. Choose any folder on your PC and every backup will be saved there.</span>
+              </div>
+              <span class="tag off" id="backupFolderTag">NO FOLDER</span>
+            </div>
+            <div class="ctrl-row">
+              <div class="txt"><b>Auto Backup</b><span>When ON, after live data loads, the backup file is written automatically into the same selected folder whenever the data changes — no download, no need to press anything. Turn it OFF to stop auto backup.</span></div>
+              <span class="tag off" id="autoBackupTag">AUTO OFF</span>
+              <button class="switch" id="autoBackupSwitch" role="switch" aria-checked="false" aria-label="Auto backup on off"></button>
+            </div>
+            <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:12px">
+              <button class="btn primary" id="pcBackupBtn" type="button">Backup Now to PC Folder</button>
+              <button class="btn" id="pickFolderBtn" type="button">Select / Change Folder</button>
+              <button class="btn" id="pcRestoreBtn" type="button">↺ Restore from Backup File</button>
+              <input type="file" id="backupFileInput" accept="application/json,.json" style="display:none" aria-label="Choose a PC backup file">
+              <span class="muted" style="font-size:12.5px" id="backupLastInfo">No PC backup saved yet</span>
+            </div>
+            <p class="muted" style="margin:12px 0 0;font-size:12.5px">How it works: the first time you click <b>Backup Now</b>, the browser’s folder picker opens. Select a folder once — the backup file (for example <span class="num-cell">B2B-Backup-2026-10-28_14-46-30.json</span>) is saved directly in that folder, and later manual and auto backups use the same folder. To use a different folder, click <b>Select / Change Folder</b> and pick a new one.</p>
+            <p class="muted" style="margin:6px 0 0;font-size:12.5px">Notes: folder backup works in <b>Chrome or Edge on a computer</b>. If the browser asks permission to save files in the folder, allow it. After a page refresh the browser may ask once to confirm folder access — click <b>Backup Now</b> to allow it again, then auto backup resumes. Later, press <b>Restore</b> to bring back Inbox, Orders, Payments, Events, People and Signal state from a backup file.</p>
+            <p class="muted" id="backupSupportNote" style="margin:6px 0 0;font-size:12.5px;display:none;color:var(--red)"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Signal Control + Signal Stats view -->
+      <section id="signal-control" class="view" data-route="signals">
+        <div class="grid-2">
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Signal Control</h2>
+              <span class="tag" id="masterTag">MASTER ON</span>
+            </div>
+            <div class="panel-body">
+              <div class="ctrl-row">
+                <div class="txt"><b>Master Signal</b><span>When OFF, no Page will send any signal</span></div>
+                <button class="switch" id="masterSwitch" role="switch" aria-checked="true" aria-label="Master signal on off"></button>
+              </div>
+              <div class="ctrl-row">
+                <div class="txt"><b>Auto Deliver</b><span>New signals will be delivered automatically</span></div>
+                <button class="switch" id="autoSwitch" role="switch" aria-checked="true" aria-label="Auto deliver on off"></button>
+              </div>
+              <div class="ctrl-row">
+                <div class="txt"><b>Send Test Signal</b><span>Pick a Page and create a test signal</span></div>
+                <select id="testPageSelect" aria-label="Page for test signal"></select>
+              </div>
+              <div class="ctrl-actions">
+                <button class="btn primary" id="testSignalBtn">＋ Send Test Signal</button>
+                <a class="btn" href="#/events" style="text-decoration:none">View Signal Table</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-head">
+              <h2>Signal Stats</h2>
+              <span class="tag blue">SHEET LIVE COUNT</span>
+            </div>
+            <div class="panel-body">
+              <div class="kv">
+                <div class="cell"><div class="n" id="stTotal">0</div><div class="t">Total Signals</div></div>
+                <div class="cell"><div class="n" id="stToday">0</div><div class="t">Signals Today</div></div>
+                <div class="cell"><div class="n" id="stDelivered">0</div><div class="t">Delivered Signal</div></div>
+                <div class="cell"><div class="n" id="stPending">0</div><div class="t">Pending Signal</div></div>
+                <div class="cell"><div class="n" id="stDeleted">0</div><div class="t">Deleted (Event-Delete)</div></div>
+                <div class="cell"><div class="n" id="stPagesOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+                <div class="cell wide"><span class="t" style="margin:0">Latest Signal</span><span class="n" id="stLast">—</span></div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Page list view -->
+      <section id="pages" class="view" data-route="pages">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Page List</h2>
+            <span class="tag">6 PAGES</span>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="Page list with signal controls">
+              <thead>
+                <tr>
+                  <th>Page</th><th>Orders</th><th>Inbox</th>
+                  <th>Pages-Signal</th><th>Delivered Signal</th><th>Event-Delete</th>
+                  <th>Signal ON / OFF</th>
+                </tr>
+              </thead>
+              <tbody id="pageRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Signal events (part of the Signal Panel view) -->
+      <section id="signals" class="view" data-route="signals">
+        <h2 class="section-title">Signal Events</h2>
+        <div class="panel">
+          <div class="panel-head">
+            <h2 style="font-size:15px">All Signals — Table</h2>
+            <span class="tag amber" id="evtCount">0</span>
+            <button class="btn small" id="clearDeliveredBtn" style="margin-left:8px">Remove Delivered</button>
+          </div>
+          <div class="table-wrap">
+            <table aria-label="Signal events">
+              <thead>
+                <tr><th>Event</th><th>Page</th><th>Type</th><th>Customer / Model</th><th>Source</th><th>Time</th><th>Status</th><th>Action</th></tr>
+              </thead>
+              <tbody id="signalRows"></tbody>
+            </table>
+          </div>
+          <div class="empty" id="signalEmpty" style="display:none">There are no events in the Sheet Events tab yet — real events will show here when they arrive. To test it yourself, send a Test Signal above.</div>
+        </div>
+      </section>
+
+      <!-- Quick access (part of the Dashboard view) -->
+      <section id="quick" class="view" data-route="dashboard">
+        <h2 class="section-title">Quick Access</h2>
+        <div class="quick">
+          <a href="#/pages"><b>Pages</b><span>6 pages • IDs &amp; info • Signal switch for each Page</span></a>
+          <a href="#/signals"><b>Signal Control</b><span>Master ON/OFF • Test signal • Auto deliver</span></a>
+          <a href="#/events"><b>Signal Events</b><span>Mark delivered • Event-delete • Remove old signals</span></a>
+          <a href="#/invoice"><b>Invoice</b><span>Per Page • View invoice slip</span></a>
+        </div>
+      </section>
+
+      <!-- Orders view -->
+      <section class="view" data-route="orders">
+        <div class="view-head"><h2>Orders</h2><p>Live from the Sheet Orders tab — no orders are created manually here</p></div>
+        <div class="panel"><div class="panel-head"><h2>All Orders — Sheet Live</h2><span class="tag" id="ordCount">0</span></div>
+        <div class="table-wrap"><table aria-label="Orders list"><thead><tr><th>Customer</th><th>Page</th><th>Bike / Model</th><th>Amount</th><th>Mobile · Address</th><th>Path</th><th>Status</th><th>Invoice · Date</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+        <div class="empty" id="ordEmpty" style="display:none">There are no orders in the Sheet yet — real orders will show here when they arrive.</div></div>
+      </section>
+
+      <!-- Payments view -->
+      <section class="view" data-route="payments">
+        <div class="view-head"><h2>Payments</h2><p>Live from the Sheet Payments tab</p></div>
+        <div class="panel"><div class="panel-head"><h2>All Payments — Sheet Live</h2><span class="tag blue" id="payCount">0</span></div>
+        <div class="table-wrap"><table aria-label="Payments list"><thead><tr><th>Customer</th><th>Page</th><th>Amount</th><th>TrxID / Last 4</th><th>Status</th><th>Date</th></tr></thead><tbody id="payRows"></tbody></table></div>
+        <div class="empty" id="payEmpty" style="display:none">There are no payments in the Sheet yet — real payments will show here when they arrive.</div></div>
+      </section>
+
+      <!-- Invoice view -->
+      <section class="view" data-route="invoice">
+        <div class="view-head"><h2>Invoice</h2><p>Invoice for each Page — separate page</p></div>
+        <div class="panel"><div class="panel-head"><h2>Invoice by Page</h2><span class="tag">6 PAGES</span></div>
+        <div class="table-wrap"><table aria-label="Invoice by page"><thead><tr><th>Page</th><th>Orders</th><th>Action</th></tr></thead><tbody id="invoiceRows"></tbody></table></div></div>
+        <div class="panel" id="invoiceSlip" style="display:none;margin-top:14px"><div class="panel-head"><h2>Invoice Slip</h2><span class="tag blue" id="invNo">—</span><button class="btn small" id="invDownload" style="margin-left:8px">⬇ Download</button></div>
+        <div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="invPage" style="font-size:16px">—</div><div class="t">Page</div></div>
+          <div class="cell"><div class="n" id="invOrders">0</div><div class="t">Total Orders</div></div>
+          <div class="cell"><div class="n" style="font-size:16px">Sheet Live</div><div class="t">Data Source</div></div>
+          <div class="cell"><div class="n" id="invInbox">0</div><div class="t">Inbox</div></div>
+        </div><p class="muted" style="margin:12px 0 0" id="invNote"></p></div></div>
+      </section>
+
+      <!-- People view -->
+      <section class="view" data-route="people">
+        <div class="view-head"><h2>People</h2><p>Live from the Sheet People tab — name, Page, stage, mobile, address and last message</p></div>
+        <div class="panel"><div class="panel-head"><h2>All People — Sheet Live</h2><span class="tag" id="peopleTotal">0</span></div>
+        <div style="padding:14px 18px 0"><input type="text" id="peopleSearch" placeholder="Search by name, Page or mobile…" style="width:100%" aria-label="People search"></div>
+        <div class="table-wrap"><table aria-label="People list"><thead><tr><th>Name</th><th>Page</th><th>Stage</th><th>Mobile</th><th>Address</th><th>Last Message</th></tr></thead><tbody id="peopleRows"></tbody></table></div>
+        <div class="empty" id="peopleEmpty" style="display:none">There are no rows in the Sheet People tab yet — real leads will show here when they arrive.</div></div>
+      </section>
+
+      <!-- Lead Center view -->
+      <section class="view" data-route="lead">
+        <div class="view-head"><h2>Lead Center</h2><p>Live leads from the Sheet People tab — sorted by stage</p></div>
+        <div class="panel"><div class="panel-head"><h2>All Leads — Sheet Live</h2><select id="leadFilter" aria-label="Lead filter" style="margin-left:auto"><option value="all">All Leads</option><option value="mobile">With Mobile</option><option value="nomobile">Without Mobile</option></select></div>
+        <div class="table-wrap"><table aria-label="Leads list"><thead><tr><th>Name</th><th>Page</th><th>Stage</th><th>Mobile</th><th>Last Message</th></tr></thead><tbody id="leadRows"></tbody></table></div>
+        <div class="empty" id="leadEmpty" style="display:none">There are no leads in the Sheet People tab yet — real leads will show here when they arrive.</div></div>
+      </section>
+
+      <!-- Inbox view -->
+      <section class="view" data-route="inbox">
+        <div class="view-head"><h2>Inbox</h2><p>Total <span id="inboxHeadTotal">0</span> Inbox — split by Page (live from Sheet)</p></div>
+        <div class="panel" style="margin-bottom:14px"><div class="panel-head"><h2>Inbox Maintenance — Summary</h2><span class="tag blue">All Pages Combined</span></div>
+        <div class="panel-body"><div class="kv" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+          <div class="cell"><div class="n" id="msTotalChats">0</div><div class="t">Total Chats</div></div>
+          <div class="cell"><div class="n" id="msUnread">0</div><div class="t">Unread Chats</div></div>
+          <div class="cell"><div class="n" id="msStarred">0</div><div class="t">★ Starred</div></div>
+          <div class="cell"><div class="n" id="msFollow">0</div><div class="t">Follow-up</div></div>
+          <div class="cell"><div class="n" id="msArchived">0</div><div class="t">Archive</div></div>
+        </div></div></div>
+        <div class="panel" style="margin-bottom:14px"><div class="panel-body" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <b>Switch Page</b>
+          <span class="muted" style="font-size:13px">Pick a Page to open that Page's inbox / chatbox</span>
+          <select id="inboxPageSwitch" aria-label="Inbox Page switch" style="margin-left:auto"></select>
+          <button class="btn primary small" id="inboxSwitchBtn">Open Inbox</button>
+        </div></div>
+        <div class="panel"><div class="panel-head"><h2>Inbox Breakdown</h2><span class="tag" id="inboxTotal">0</span></div>
+        <div class="table-wrap"><table aria-label="Inbox by page"><thead><tr><th>Page</th><th>Inbox</th><th>Orders</th><th>Action</th></tr></thead><tbody id="inboxRows"></tbody></table></div></div>
+        <div class="panel chat-pop" id="inboxViewer" style="display:none" role="dialog" aria-label="Page chatbox">
+          <div class="chat-pop-head">
+            <span class="avatar chat-pop-avatar" id="chatPopAvatar">BCB</span>
+            <div class="chat-pop-title">
+              <h2 id="inboxViewerTitle">Chatbox</h2>
+              <span class="chat-pop-status"><span class="dot"></span><span id="inboxViewerCount">0 inbox</span></span>
+            </div>
+            <select id="chatPageSelect" class="chat-pop-select" aria-label="Page for chatbox"></select>
+            <button class="chat-pop-btn" id="chatReloadBtn" title="Reload — load all contacts again from getPeople" aria-label="Reload contact list">↻</button>
+            <button class="chat-pop-btn" id="markAllReadBtn" title="Mark all chats as Read" aria-label="Mark all chats as Read">✓</button>
+            <button class="chat-pop-btn" id="chatMinBtn" title="Minimize / expand" aria-label="Minimize or expand chatbox">—</button>
+            <button class="chat-pop-btn" id="inboxClose" title="Close" aria-label="Close chatbox">✕</button>
+          </div>
+          <div class="panel-body chat-pop-body">
+            <div class="chat-filters">
+              <button class="chip active" data-chatfilter="all">All Chats</button>
+              <button class="chip" data-chatfilter="unread">Unread</button>
+              <button class="chip" data-chatfilter="starred">★ Star</button>
+              <button class="chip" data-chatfilter="follow">Follow-up</button>
+              <button class="chip" data-chatfilter="archived">Archive</button>
+              <input type="text" id="chatSearch" placeholder="Search chats…" style="margin-left:auto;min-width:150px" aria-label="Chat search">
+            </div>
+            <div class="chat-layout">
+              <div class="chat-people-col">
+                <div class="new-chat-row"><input type="text" id="newChatName" placeholder="New person's name" style="flex:1;min-width:0" aria-label="Name for new chat"><button class="btn small primary" id="newChatBtn">＋ Chat</button></div>
+                <div class="contacts-bar"><b>All Contacts</b><span id="chatContactCount">0</span><button class="btn small" id="chatListReloadBtn" title="Reload — load all contacts again">↻ Reload</button></div>
+                <div id="chatPeople"></div>
+                <div class="empty" id="chatPeopleEmpty" style="display:none;padding:14px 6px">There are no chats on this Page yet — type a name above to start a new chat.</div>
+              </div>
+              <div class="chat-convo">
+                <div id="inboxThread"></div>
+                <div class="empty" id="inboxThreadEmpty" style="display:none">Pick someone on the left, or start a new chat.</div>
+                <div class="quick-label">Quick Reply — tap one to put the text in the box below, check it, then send:</div>
+                <div id="quickReplies"></div>
+                <div class="chat-composer">
+                  <input type="text" id="inboxMsgInput" placeholder="Type a message…" aria-label="Chat message">
+                  <button class="btn primary" id="inboxMsgSend">Send</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Audience view -->
+      <section class="view" data-route="audience">
+        <div class="view-head"><h2>Audience</h2><p>Pages with Signal ON are the active audience</p></div>
+        <div class="panel"><div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="audOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+          <div class="cell"><div class="n" id="audOff">0 / 6</div><div class="t">Signal OFF Pages — stay OFF</div></div>
+        </div><p class="muted" style="margin:14px 0 0">A Page that is OFF will not turn ON by itself. You can also switch each Page's signal ON/OFF using the switches below.</p></div></div>
+        <div class="panel" style="margin-top:14px"><div class="panel-head"><h2>Audience Switch by Page</h2></div><div class="panel-body" id="audRows"></div></div>
+      </section>
+
+      <!-- Events view -->
+      <section class="view" data-route="events">
+        <div class="view-head"><h2>Events</h2><p>All Signal Events — separate page, no Dashboard here</p></div>
+        <div class="panel"><div class="panel-head"><h2>All Events — Sheet Live</h2><span class="tag amber" id="eventCount2">0</span></div>
+        <div class="table-wrap"><table aria-label="Events list"><thead><tr><th>Event</th><th>Page</th><th>Type</th><th>Customer / Model</th><th>Source</th><th>Time</th><th>Status</th></tr></thead><tbody id="eventRows"></tbody></table></div>
+        <div class="empty" id="eventEmpty" style="display:none">There are no events in the Sheet Events tab yet — real events will show here when they arrive.</div></div>
+      </section>
+
+      <!-- Control Panel view -->
+      <section class="view" data-route="control">
+        <div class="view-head"><h2>Control Panel</h2><p>Signal ON/OFF for each Page — turning OFF applies immediately and stays OFF; turning ON again asks for confirmation, so it cannot turn ON by a mistaken tap or by itself</p></div>
+        <div class="panel"><div class="panel-head"><h2>Page Signal Switch</h2><span class="tag" id="controlMasterTag">MASTER ON</span><button class="btn small" id="allOnBtn" style="margin-left:8px">Turn All ON</button><button class="btn small" id="allOffBtn">Turn All OFF</button></div>
+        <div class="panel-body" id="controlRows"></div></div>
+        <p class="muted" style="margin-top:12px">Reason: sending a test / order signal to Facebook from an OFF Page would cause problems — so no signal is sent from an OFF Page, and a switch's state does not change when you switch pages.</p>
+      </section>
+
+      <!-- Analysis view -->
+      <section class="view" data-route="analysis">
+        <div class="view-head"><h2>Analysis</h2><p>Summary of Signals and Pages</p></div>
+        <div class="panel"><div class="panel-body"><div class="kv">
+          <div class="cell"><div class="n" id="anTotal">0</div><div class="t">Total Signals</div></div>
+          <div class="cell"><div class="n" id="anDelivered">0</div><div class="t">Delivered</div></div>
+          <div class="cell"><div class="n" id="anPending">0</div><div class="t">Pending</div></div>
+          <div class="cell"><div class="n" id="anPagesOn">0 / 6</div><div class="t">Signal ON Page</div></div>
+        </div></div></div>
+        <div class="panel" style="margin-top:14px"><div class="panel-head"><h2>Signal Breakdown by Page</h2><span class="tag blue">LIVE COUNT</span></div><div class="panel-body" id="anBreakdown"></div></div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<nav class="bottomnav" aria-label="Mobile">
+  <a href="#/dashboard" data-view="dashboard" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V21H3z"/></svg>Home</a>
+  <a href="#/pages" data-view="pages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>Pages</a>
+  <a href="#/signals" data-view="signals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a8 8 0 0 1 16 0"/><circle cx="12" cy="20" r="1.6" fill="currentColor"/></svg>Signal</a>
+  <a href="#/events" data-view="events"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/></svg>Events</a>
+</nav>
+
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Delete this signal?</h3>
+    <p id="modalText">This signal will be Event-Deleted.</p>
+    <div class="row">
+      <button class="btn" id="modalCancel">No, Keep It</button>
+      <button class="btn danger" id="modalOk">Yes, Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ----- Data (from screenshot + owner Page list) ----- */
+  var pages = [
+    {id:"bcb", mark:"BCB", name:"Border Cross Bike", bn:"Border Cross Bike", orders:0, inbox:0, on:true},
+    {id:"bb",  mark:"BB", name:"Bike Bazar", bn:"Bike Bazar", orders:0, inbox:0, on:true},
+    {id:"bsc", mark:"BSC", name:"Bike Sell Center", bn:"Bike Sell Center", orders:0, inbox:0, on:true},
+    {id:"icb", mark:"ICB", name:"Indian Custom Bike", bn:"Indian Custom Bike", orders:0, inbox:0, on:false},
+    {id:"bz",  mark:"BZ",  name:"Bike Zone", bn:"Bike Zone", orders:0, inbox:0, on:true},
+    {id:"bbd", mark:"BD",  name:"Bike BD", bn:"Bike BD", orders:0, inbox:0, on:false}
+  ];
+
+  var seq = 100;
+  var signals = [];      /* Live from Sheet Events (+ Test Signals sent in this panel) */
+  var localSignals = []; /* Test Signals sent in this session only */
+  var deletedCount = 0;
+  var orderSeq = 1000;
+  var orders = [];       /* Live from Sheet Orders */
+  var liveOrders = [];
+  var livePayments = [];
+  var liveEvents = [];
+  var livePeople = [];
+  var leadStatus = {};
+  var currentInvPage = null;
+  var inboxOpen = null;
+  var pageNotes = {};
+  var chats = {};
+  var activeChat = null;
+  var chatSeq = 0;
+  var chatFilter = "all";
+  var masterOn = true;
+  var autoDeliver = true;
+  /* Facebook inbox style: contact list from getPeople, loads step by step on scroll */
+  var CONTACT_PAGE_SIZE = 30;
+  var contactVisible = CONTACT_PAGE_SIZE;
+  var contactLoading = false;
+  var contactFiltered = [];
+  var inboxReloading = false;
+  var contactPreserveScroll = null;
+  var contactFilterKey = "";
+
+  /* ----- Sheet Live Connection (Apps Script web app, Version 47) ----- */
+  var API = "https://script.google.com/macros/s/AKfycbxgEaDli8K04SeuVjqL3qqdx6w4QQSvLXC23hjgP6p10XfJKU_ru8C39ky7dxbrlDOs/exec";
+  var liveLoaded = false;       /* true when getInbox succeeds */
+  var liveSignalLoaded = false; /* true when getSignalState succeeds */
+  var liveMsgs = [];
+  /* ----- Browser Save (cache): live Sheet data is saved in the browser; if live fails, saved data is shown ----- */
+  var CACHE_KEY = "b2b_admin_panel_snapshot_v1";
+  var cacheSavedAt = null;      /* time the data was saved (ms) */
+  var showingCached = false;    /* whether saved data is being shown now */
+  var hasCachedData = false;
+  var cachedPageInbox = null;
+  var cacheSlim = false;
+  function apiPost(payload){
+    return fetch(API, {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(payload)})
+      .then(function(r){ return r.json(); });
+  }
+  function sheetName(p){ return p.id==="bb" ? p.bn : p.name; }
+  var PAGE_ALIASES={"বর্ডার ক্রস বাইক":"bcb","বাইক বাজার":"bb","বাইক সেল সেন্টার":"bsc","ইন্ডিয়ান কাস্টম বাইক":"icb","বাইক জোন":"bz","বাইক বিডি":"bbd"};
+  function pageBySheetName(nm){
+    if(nm==null) return null;
+    var k=String(nm).trim().toLowerCase();
+    for(var i=0;i<pages.length;i++){
+      if(pages[i].name.toLowerCase()===k || pages[i].bn.toLowerCase()===k || pages[i].id===k) return pages[i];
+    }
+    var aid=PAGE_ALIASES[String(nm).trim()];
+    if(aid) return pageByIdEarly(aid);
+    return null;
+  }
+  function pageByIdEarly(id){ for(var j=0;j<pages.length;j++) if(pages[j].id===id) return pages[j]; return null; }
+  function isReadVal(v){
+    if(v===true || v===1) return true;
+    if(typeof v==="string") return /^(yes|true|read|y|1)$/i.test(v.trim());
+    return false;
+  }
+  function fmtDate(v){
+    if(!v) return "";
+    var d=new Date(v);
+    if(isNaN(d.getTime())) return String(v);
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getUTCDate()+" "+mon[d.getUTCMonth()]+" "+d.getUTCFullYear();
+  }
+  /* Read a field from a Sheet row — whatever the header name/casing is */
+  function pickVal(o, keys){
+    if(!o) return "";
+    for(var i=0;i<keys.length;i++){ var v=o[keys[i]]; if(v!=null && v!=="") return v; }
+    var lk={};
+    Object.keys(o).forEach(function(k){ lk[String(k).toLowerCase().replace(/[\s_\-]/g,"")]=o[k]; });
+    for(var j=0;j<keys.length;j++){ var w=lk[String(keys[j]).toLowerCase().replace(/[\s_\-]/g,"")]; if(w!=null && w!=="") return w; }
+    return "";
+  }
+  function rowPageName(o){ return String(pickVal(o,["page","Page","pageName","Page Name"])||"").trim(); }
+  function rowDateTxt(o){ var v=pickVal(o,["date","Date","time","Time","createdAt","Timestamp","updatedAt"]); return v? fmtDate(v):""; }
+  function isTodayVal(v){
+    if(!v) return false;
+    var d=new Date(v); if(isNaN(d.getTime())) return false;
+    var n=new Date();
+    return d.getFullYear()===n.getFullYear() && d.getMonth()===n.getMonth() && d.getDate()===n.getDate();
+  }
+  function normStatus(v){
+    var s=String(v==null?"":v).trim().toLowerCase();
+    if(!s) return "pending";
+    if(s.indexOf("deliver")>-1 || s.indexOf("done")>-1 || s.indexOf("complete")>-1 || s.indexOf("paid")>-1) return "delivered";
+    if(s.indexOf("delet")>-1 || s.indexOf("cancel")>-1 || s.indexOf("reject")>-1) return "deleted";
+    return "pending";
+  }
+  /* Build per-Page order counts from live rows + the signals list from Events */
+  function syncLiveDerived(){
+    pages.forEach(function(p){ p.orders=0; });
+    liveOrders.forEach(function(o){
+      var p=pageBySheetName(rowPageName(o)); if(p) p.orders++;
+    });
+    orders=liveOrders;
+    signals=liveEvents.map(function(e, ix){
+      var p=pageBySheetName(rowPageName(e));
+      var stRaw=pickVal(e,["status","Status"]);
+      return {
+        id: pickVal(e,["id","ID","signalId","Signal ID"]) || ("EV-"+(ix+1)),
+        pageId: p? p.id : "",
+        pageName: rowPageName(e),
+        type: String(pickVal(e,["type","Type","event","Event","signal","Signal"])||"Event"),
+        who: String(pickVal(e,["customer","Customer","customerName","Customer Name","model","Model","name","Name"])||""),
+        source: String(pickVal(e,["source","Source"])||""),
+        time: rowDateTxt(e),
+        today: isTodayVal(pickVal(e,["date","Date","time","Time","createdAt"])),
+        status: normStatus(stRaw),
+        statusRaw: String(stRaw==null?"":stRaw),
+        local:false
+      };
+    }).concat(localSignals);
+    deletedCount=signals.filter(function(s){ return s.status==="deleted"; }).length;
+  }
+  function setSync(state, sub){
+    var t=$("syncTitle"), s=$("syncSub"), dot=$("syncDot");
+    if(!t) return;
+    if(state==="live"){ t.textContent="Sheet Live Connected"; dot.style.background=""; }
+    else if(state==="saved"){ t.textContent="Live not available — showing saved data"; dot.style.background="#f79009"; }
+    else if(state==="error"){ t.textContent="Sheet Live — not connected"; dot.style.background="#f97066"; }
+    else { t.textContent="Sheet Live — connecting…"; dot.style.background=""; }
+    var hint=$("dashInboxHint");
+    if(hint) hint.textContent = state==="live" ? "Live count from Sheet Inbox" : (state==="saved" ? "Live not available — showing count from previously saved data" : (state==="error" ? "Live did not load — no count is made up, press Refresh" : "Loading live count from Sheet Inbox…"));
+    if(sub) s.textContent=sub;
+  }
+  function fmtSavedTime(ts){
+    if(!ts) return "—";
+    var d=new Date(ts); if(isNaN(d.getTime())) return "—";
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    var hh=d.getHours(), mm=("0"+d.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12;
+    return d.getDate()+" "+mon[d.getMonth()]+" "+d.getFullYear()+", "+hh+":"+mm+" "+ap;
+  }
+  function updateSavedBar(){
+    var bar=null; try{ bar=document.getElementById("savedBar"); }catch(e){}
+    if(!bar) return;
+    if(!cacheSavedAt){ bar.style.display="none"; bar.className="saved-bar"; bar.innerHTML=""; return; }
+    if(showingCached){
+      bar.className="saved-bar cached"; bar.style.display="flex";
+      bar.innerHTML="<b>Live not available — showing previously saved data</b><span>This data was saved from an earlier live load — so the counts have not dropped to 0.</span><span class='saved-time'>Saved at: "+fmtSavedTime(cacheSavedAt)+"</span>";
+    } else {
+      bar.className="saved-bar live"; bar.style.display="flex";
+      bar.innerHTML="<b>Live data — saved in the browser</b><span>If live does not load later, this saved data will be shown instead.</span><span class='saved-time'>Saved at: "+fmtSavedTime(cacheSavedAt)+"</span>";
+    }
+  }
+  function saveSnapshot(){
+    if(!liveMsgs.length && !livePeople.length && !liveOrders.length && !livePayments.length && !liveEvents.length) return;
+    try{
+      var snap={v:1, savedAt:Date.now(), slim:false, liveMsgs:liveMsgs, liveOrders:liveOrders, livePayments:livePayments, liveEvents:liveEvents, livePeople:livePeople, pageOn:{}, pageInbox:{}};
+      pages.forEach(function(p){ snap.pageOn[p.id]=!!p.on; snap.pageInbox[p.id]=p.inbox||0; });
+      try{ localStorage.setItem(CACHE_KEY, JSON.stringify(snap)); }
+      catch(e1){
+        snap.slim=true; snap.liveMsgs=(liveMsgs||[]).slice(0,1500);
+        try{ localStorage.setItem(CACHE_KEY, JSON.stringify(snap)); }catch(e2){ return; }
+      }
+      cacheSavedAt=snap.savedAt; hasCachedData=true; cacheSlim=!!snap.slim; cachedPageInbox=snap.pageInbox;
+    }catch(e){}
+    updateSavedBar();
+  }
+  function updateCachedSignalState(){
+    if(!cacheSavedAt) return;
+    try{
+      var raw=localStorage.getItem(CACHE_KEY); if(!raw) return;
+      var snap=JSON.parse(raw); if(!snap) return;
+      snap.pageOn=snap.pageOn||{}; pages.forEach(function(p){ snap.pageOn[p.id]=!!p.on; });
+      localStorage.setItem(CACHE_KEY, JSON.stringify(snap));
+    }catch(e){}
+  }
+  function loadCachedSnapshot(){
+    try{
+      var raw=localStorage.getItem(CACHE_KEY); if(!raw) return false;
+      var snap=JSON.parse(raw); if(!snap || !snap.savedAt) return false;
+      liveMsgs=Array.isArray(snap.liveMsgs)? snap.liveMsgs : [];
+      liveOrders=Array.isArray(snap.liveOrders)? snap.liveOrders : [];
+      livePayments=Array.isArray(snap.livePayments)? snap.livePayments : [];
+      liveEvents=Array.isArray(snap.liveEvents)? snap.liveEvents : [];
+      livePeople=Array.isArray(snap.livePeople)? snap.livePeople : [];
+      if(!liveMsgs.length && !livePeople.length && !liveOrders.length && !livePayments.length && !liveEvents.length) return false;
+      if(snap.pageOn){ pages.forEach(function(p){ if(typeof snap.pageOn[p.id]==="boolean") p.on=snap.pageOn[p.id]; }); }
+      cacheSavedAt=snap.savedAt; cachedPageInbox=snap.pageInbox||null; cacheSlim=!!snap.slim; hasCachedData=true; showingCached=true;
+      buildLiveChats();
+      if(cacheSlim && cachedPageInbox){ pages.forEach(function(p){ if(typeof cachedPageInbox[p.id]==="number") p.inbox=cachedPageInbox[p.id]; }); }
+      syncLiveDerived();
+      if(cacheSlim && cachedPageInbox){ pages.forEach(function(p){ if(typeof cachedPageInbox[p.id]==="number") p.inbox=cachedPageInbox[p.id]; }); }
+      return true;
+    }catch(e){ return false; }
+  }
+  function avatarUrlOf(o){
+    return String(pickVal(o,["avatar","Avatar","profilePic","Profile Pic","profilePicture","Profile Picture","picture","Picture","photo","Photo","image","Image","profileUrl"])||"").trim();
+  }
+  function initialsFor(name, psid){
+    var s=String(name||"").trim();
+    if(s && !/^\d{6,}$/.test(s) && s.toLowerCase()!=="customer"){
+      var parts=s.split(/\s+/).filter(Boolean);
+      if(parts.length>=2) return (parts[0].charAt(0)+parts[1].charAt(0)).toUpperCase();
+      return s.slice(0,2).toUpperCase();
+    }
+    var d=String(psid||s||"?").replace(/\D/g,"");
+    return d? d.slice(-2) : "?";
+  }
+  var AV_COLORS=["#0084ff","#7c4dff","#0f9d58","#e8710a","#c2185b","#00838f","#5d4037","#3949ab"];
+  function avatarColorFor(key){
+    var h=0; var s=String(key||"");
+    for(var i=0;i<s.length;i++) h=(h*31 + s.charCodeAt(i))>>>0;
+    return AV_COLORS[h % AV_COLORS.length];
+  }
+  function contactLastTs(c){
+    if(c && typeof c.lastTs==="number" && c.lastTs) return c.lastTs;
+    if(c && c.msgs && c.msgs.length){
+      for(var i=c.msgs.length-1;i>=0;i--){ var t=Date.parse(c.msgs[i].rawDate||c.msgs[i].time||""); if(!isNaN(t)) return t; }
+    }
+    return 0;
+  }
+  /* Build real chats per Page from Sheet Inbox (newest first) — grouped by person */
+  function buildLiveChats(){
+    var oldFlags={};
+    pages.forEach(function(p){
+      (chats[p.id]||[]).forEach(function(c){ var k=c.psid? (p.id+"|psid:"+c.psid) : (p.id+"|"+c.name); oldFlags[k]={starred:c.starred, follow:c.follow, archived:c.archived}; });
+    });
+    var grouped={}, byPerson={}, counts={}, lastKey={};
+    pages.forEach(function(p){ grouped[p.id]=[]; counts[p.id]=0; });
+    var oldestFirst=liveMsgs.slice().reverse();
+    oldestFirst.forEach(function(m){
+      var p=pageBySheetName(m.page); if(!p) return;
+      counts[p.id]++;
+      /* Version 47: getInbox gives psid and customerName per message — name if present, otherwise PSID */
+      var cname=String(pickVal(m,["customerName","Customer Name","name","Name"])||"").trim();
+      var psid=String(pickVal(m,["psid","PSID","Psid"])||"").trim();
+      var legacy=String(pickVal(m,["person","Person"])||"").trim();
+      var person=cname || psid || legacy;
+      var type=(m.type==null? "" : String(m.type)).trim().toLowerCase();
+      var out=(type==="outgoing" || type==="out" || type==="sent" || type==="page");
+      var key;
+      if(psid){ key=p.id+"|psid:"+psid; if(!out) lastKey[p.id]=key; }
+      else if(person){ key=p.id+"|"+person; lastKey[p.id]=key; }
+      else if(out && lastKey[p.id]){ key=lastKey[p.id]; }
+      else { key=p.id+"|Customer"; if(!out) lastKey[p.id]=key; }
+      var c=byPerson[key];
+      if(!c){
+        var fl=oldFlags[key]||{};
+        c={id:"live"+(++chatSeq), name:person||"Customer", psid:psid||legacy||"", unread:0,
+           starred:!!fl.starred, archived:!!fl.archived, follow:!!fl.follow, msgs:[], lastTs:0, avatarUrl:"", fromPeople:false};
+        byPerson[key]=c; grouped[p.id].push(c);
+      }
+      if(cname && c.name!==cname){ c.name=cname; }
+      if(psid && !c.psid){ c.psid=psid; }
+      var av=avatarUrlOf(m); if(av && !c.avatarUrl) c.avatarUrl=av;
+      var ts=Date.parse(m.date||""); if(!isNaN(ts) && ts>c.lastTs) c.lastTs=ts;
+      c.msgs.push({who: out? "out":"in", text:(m.message==null? "" : String(m.message)), time:fmtDate(m.date), rawDate:(m.date||"")});
+      if(!out && !isReadVal(m.read)) c.unread=1;
+    });
+    /* Main contact list: all unique contacts from getPeople — not only contacts from the last 500 messages.
+       Name if present, otherwise PSID. Contacts with no messages are included too. */
+    (livePeople||[]).forEach(function(r){
+      var pgName=rowPageName(r);
+      var p=pageBySheetName(pgName);
+      if(!p){
+        /* A People row whose Page does not match is not forced into any Page */
+        if(pgName) return;
+        return;
+      }
+      var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim();
+      var ps=String(pickVal(r,["psid","PSID","Psid"])||"").trim();
+      var disp=nm || ps;
+      if(!disp) return;
+      var key2= ps? (p.id+"|psid:"+ps) : (p.id+"|"+disp);
+      var c2=byPerson[key2];
+      if(!c2){
+        /* Without a PSID, try matching the inbox contact by name */
+        if(!ps && nm){
+          Object.keys(byPerson).forEach(function(k){ if(k.indexOf(p.id+"|")===0){ var cc=byPerson[k]; if(cc && cc.name===nm) c2=cc; } });
+        }
+      }
+      var lastTxt=String(pickVal(r,["lastMessage","Last Message","last_message","lastMsg","message","Message"])||"").trim();
+      var av2=avatarUrlOf(r);
+      var ts2=Date.parse(pickVal(r,["date","Date","updatedAt","UpdatedAt","lastDate"])||""); if(isNaN(ts2)) ts2=0;
+      if(!c2){
+        var fl2=oldFlags[key2]||{};
+        c2={id:"people"+(++chatSeq), name:disp, psid:ps||"", unread:0,
+           starred:!!fl2.starred, archived:!!fl2.archived, follow:!!fl2.follow, msgs:[], lastTs:ts2, avatarUrl:av2||"", fromPeople:true, lastTextFallback:lastTxt};
+        byPerson[key2]=c2; grouped[p.id].push(c2);
+      } else {
+        c2.fromPeople=true;
+        if(nm && (c2.name===c2.psid || c2.name==="Customer" || /^\d{6,}$/.test(c2.name))) c2.name=nm;
+        if(ps && !c2.psid) c2.psid=ps;
+        if(av2 && !c2.avatarUrl) c2.avatarUrl=av2;
+        if(lastTxt && !c2.lastTextFallback) c2.lastTextFallback=lastTxt;
+        if(ts2 && ts2>c2.lastTs && !c2.msgs.length) c2.lastTs=ts2;
+      }
+      var stg=String(pickVal(r,["stage","Stage","status","Status"])||"").trim(); if(stg && !c2.stage) c2.stage=stg;
+      var mob=String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"").trim(); if(mob && !c2.mobile) c2.mobile=mob;
+    });
+    pages.forEach(function(p){
+      /* Like Facebook inbox: most recent contact first */
+      grouped[p.id].sort(function(a,b){ return contactLastTs(b)-contactLastTs(a); });
+      chats[p.id]=grouped[p.id];
+      p.inbox=counts[p.id];
+    });
+    if(activeChat && inboxOpen){
+      var still=null;
+      (chats[inboxOpen]||[]).forEach(function(c){ if(c.id===activeChat) still=c; });
+      if(!still) activeChat=null;
+    }
+  }
+  function persistSignal(p){
+    updateCachedSignalState();
+    apiPost({action:"setSignalState", page:sheetName(p), signalOn:!!p.on})
+      .then(function(res){
+        if(!res || !res.ok) toast(p.name+" — signal state was not saved to the Sheet, press Refresh and try again");
+      })
+      .catch(function(){ toast("Sheet connection not available — signal state was not saved"); });
+  }
+  function loadLive(){
+    inboxReloading=true; contactVisible=CONTACT_PAGE_SIZE; contactLoading=false;
+    var rb=$("chatReloadBtn"); if(rb) rb.classList.add("reload-spinning");
+    var pl0=$("chatPeople");
+    if(pl0 && inboxOpen){ pl0.innerHTML='<div class="contacts-spinner"><span class="spinner lg"></span><span>Loading all contacts…</span></div>'; }
+    if(hasCachedData && cacheSavedAt){
+      setSync("loading", "Trying live — showing saved data until it loads (Saved: "+fmtSavedTime(cacheSavedAt)+")");
+      updateSavedBar();
+    } else {
+      setSync("loading", "Loading Inbox, Orders, Payments, Events, People and Signal state from Apps Script (Version 47)");
+    }
+    var okCount=0;
+    var sP=apiPost({action:"getSignalState"}).then(function(res){
+      if(res && res.ok && res.states){
+        Object.keys(res.states).forEach(function(k){
+          var p=pageBySheetName(k); if(p) p.on=!!res.states[k];
+        });
+        liveSignalLoaded=true; okCount++;
+      }
+    }).catch(function(){});
+    var iP=apiPost({action:"getInbox", limit:5000}).then(function(res){
+      if(res && res.ok && res.messages){
+        liveMsgs=res.messages; liveLoaded=true; okCount++;
+        /* buildLiveChats runs after Promise.all — so getPeople has arrived too, and the contact list is built from People */
+      }
+    }).catch(function(){});
+    var oP=apiPost({action:"getOrders"}).then(function(res){
+      if(res && res.ok && res.rows){ liveOrders=res.rows; okCount++; }
+    }).catch(function(){});
+    var payP=apiPost({action:"getPayments"}).then(function(res){
+      if(res && res.ok && res.rows){ livePayments=res.rows; okCount++; }
+    }).catch(function(){});
+    var eP=apiPost({action:"getEvents"}).then(function(res){
+      if(res && res.ok && res.rows){ liveEvents=res.rows; okCount++; }
+    }).catch(function(){});
+    var peP=apiPost({action:"getPeople"}).then(function(res){
+      if(res && res.ok && res.rows){ livePeople=res.rows; okCount++; }
+    }).catch(function(){});
+    Promise.all([sP, iP, oP, payP, eP, peP]).then(function(){
+      if(liveLoaded || livePeople.length) buildLiveChats();
+      inboxReloading=false;
+      var rb2=$("chatReloadBtn"); if(rb2) rb2.classList.remove("reload-spinning");
+      syncLiveDerived();
+      if(okCount>0){
+        showingCached=false;
+        renderAll();
+        saveSnapshot();
+        setSync("live", "Apps Script Version 47 • Inbox "+liveMsgs.length+" • Orders "+liveOrders.length+" • Payments "+livePayments.length+" • Events "+liveEvents.length+" • People "+livePeople.length+" — all live from Sheet • Saved: "+fmtSavedTime(cacheSavedAt));
+        updateSavedBar();
+        toast("Sheet live data loaded — Inbox "+liveMsgs.length+", Orders "+liveOrders.length+", People "+livePeople.length+" • Saved: "+fmtSavedTime(cacheSavedAt));
+        /* If Auto Backup is ON: when live data changes, the file downloads to PC automatically */
+        maybeAutoBackup();
+      } else if(hasCachedData && cacheSavedAt){
+        showingCached=true;
+        /* Live did not load — the arrays still hold the saved data, so counts will not drop to 0; just re-render to show it */
+        if(liveMsgs.length || livePeople.length) buildLiveChats();
+        syncLiveDerived();
+        renderAll();
+        setSync("saved", "Live not available — showing previously saved data • Saved at: "+fmtSavedTime(cacheSavedAt)+" • Inbox "+liveMsgs.length+" • Orders "+liveOrders.length+" • People "+livePeople.length);
+        updateSavedBar();
+        toast("Live not available — showing previously saved data — Saved: "+fmtSavedTime(cacheSavedAt));
+      } else {
+        renderAll();
+        setSync("error", "Connection not available — press Refresh; no counts are made up");
+      }
+    });
+  }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var pageById = function(id){ for(var i=0;i<pages.length;i++) if(pages[i].id===id) return pages[i]; return null; };
+
+  function toast(msg){
+    var t=$("toast"); t.textContent=msg; t.classList.add("show");
+    clearTimeout(t._h); t._h=setTimeout(function(){ t.classList.remove("show"); },2600);
+  }
+
+  /* ----- The only path for Signal ON/OFF: OFF applies immediately, ON needs confirmation — it cannot turn ON by a mistaken tap or by itself ----- */
+  function togglePage(p){
+    if(p.on){
+      p.on=false;
+      persistSignal(p);
+      toast(p.name+" — signal is OFF and saved to the Sheet — it will stay OFF even after a reload");
+      renderAll();
+    } else {
+      openModal("Turn the signal ON again for "+p.name+"?",
+        "Turning it ON will let test / order signals go to this Page. To keep it OFF, press 'No, Keep It' — it will stay OFF.",
+        function(){ p.on=true; persistSignal(p); toast(p.name+" — signal is now ON and saved to the Sheet"); renderAll(); },
+        "Yes, Turn ON");
+    }
+  }
+
+  /* ----- Page rows ----- */
+  function pageSignalCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid) n++; }); return n; }
+  function pageDeliveredCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid && s.status==="delivered") n++; }); return n; }
+  function pageDeletedCount(pid){ var n=0; signals.forEach(function(s){ if(s.pageId===pid && s.status==="deleted") n++; }); return n; }
+
+  function renderPages(){
+    var tb=$("pageRows"); tb.innerHTML="";
+    pages.forEach(function(p){
+      var tr=document.createElement("tr");
+      var sigN=pageSignalCount(p.id), delN=pageDeliveredCount(p.id), delEv=pageDeletedCount(p.id);
+      tr.innerHTML =
+        '<td data-l="Page"><div class="page-cell"><span class="avatar">'+p.mark+'</span><span><b>'+p.name+'</b>'+(p.bn && p.bn!==p.name? '<span>'+p.bn+'</span>':'')+'</span></div></td>'+
+        '<td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td>'+
+        '<td data-l="Inbox"><span class="num-cell">'+p.inbox+'</span></td>'+
+        '<td data-l="Pages-Signal"><span class="pill'+(sigN?"":" off")+'">'+sigN+' signals</span></td>'+
+        '<td data-l="Delivered"><span class="pill blue">'+delN+' delivered</span></td>'+
+        '<td data-l="Event-Delete"><span class="pill'+(delEv?" red":" off")+'">'+delEv+' deleted</span></td>'+
+        '<td data-l="Signal"><div class="row-actions"><button class="btn small" data-testsig="'+p.id+'">Test Signal</button><button class="switch sm" role="switch" aria-checked="'+p.on+'" aria-label="'+p.name+' signal on off" data-toggle="'+p.id+'"></button></div></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("[data-toggle]").forEach(function(sw){
+      sw.addEventListener("click", function(){
+        togglePage(pageById(sw.getAttribute("data-toggle")));
+      });
+    });
+    tb.querySelectorAll("[data-testsig]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        sendTestSignal(pageById(btn.getAttribute("data-testsig")));
+      });
+    });
+  }
+
+  /* ----- Signal rows ----- */
+  function statusPill(s){
+    if(s.status==="delivered") return '<span class="pill">● Delivered</span>';
+    if(s.status==="deleted") return '<span class="pill red">● Deleted</span>';
+    return '<span class="pill amber">● Pending</span>';
+  }
+  function renderSignals(){
+    var tb=$("signalRows"); tb.innerHTML="";
+    var visible=signals.slice().reverse();
+    $("signalEmpty").style.display = visible.length? "none":"block";
+    $("evtCount").textContent = visible.length;
+    visible.forEach(function(s){
+      var p=pageById(s.pageId);
+      var sigLbl = s.local? ("SIG-"+s.id) : String(s.id);
+      var tr=document.createElement("tr");
+      tr.innerHTML =
+        '<td data-l="Event"><span class="num-cell">'+escapeHtml(sigLbl)+'</span></td>'+
+        '<td data-l="Page">'+escapeHtml(p?p.name:(s.pageName||"—"))+'</td>'+
+        '<td data-l="Type">'+escapeHtml(s.type)+'</td>'+
+        '<td data-l="Customer / Model">'+escapeHtml(s.who||"—")+'</td>'+
+        '<td data-l="Source">'+escapeHtml(s.source||"—")+'</td>'+
+        '<td data-l="Time" class="muted">'+escapeHtml(s.time||"")+'</td>'+
+        '<td data-l="Status">'+(s.statusRaw && !s.local? '<span class="pill blue">'+escapeHtml(s.statusRaw)+'</span>' : statusPill(s))+'</td>'+
+        '<td data-l="Action"><div class="row-actions">'+
+          (s.local && s.status==="pending" ? '<button class="btn small" data-deliver="'+s.id+'">✓ Mark Delivered</button>' : '')+
+          (s.local && s.status!=="deleted" ? '<button class="btn small danger" data-del="'+s.id+'">🗑 Event-Delete</button>' : '')+
+          (!s.local ? '<span class="muted" style="font-size:12px">Sheet record</span>' : '')+
+        '</div></td>';
+      tb.appendChild(tr);
+    });
+    tb.querySelectorAll("[data-deliver]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var s=findSignal(+b.getAttribute("data-deliver")); if(!s) return;
+        s.status="delivered"; toast("SIG-"+s.id+" marked as delivered"); renderAll();
+      });
+    });
+    tb.querySelectorAll("[data-del]").forEach(function(b){
+      b.addEventListener("click", function(){
+        var s=findSignal(+b.getAttribute("data-del")); if(!s) return;
+        openModal("Delete SIG-"+s.id+"?", "This signal will move to the Event-Delete list.", function(){
+          s.status="deleted"; deletedCount++; toast("SIG-"+s.id+" deleted"); renderAll();
+        });
+      });
+    });
+  }
+  function findSignal(id){ for(var i=0;i<signals.length;i++) if(signals[i].id===id) return signals[i]; return null; }
+  function markDelivered(id){ var s=findSignal(id); if(!s) return; s.status="delivered"; toast("SIG-"+id+" marked as delivered"); renderAll(); }
+  function markDeleted(id){ var s=findSignal(id); if(!s) return; openModal("Delete SIG-"+id+"?", "This signal will move to the Event-Delete list.", function(){ s.status="deleted"; deletedCount++; toast("SIG-"+id+" deleted"); renderAll(); }); }
+
+  /* ----- Stats ----- */
+  function renderStats(){
+    var total=signals.length, today=0, del=0, pen=0;
+    signals.forEach(function(s){
+      if(s.today) today++;
+      if(s.status==="delivered") del++;
+      if(s.status==="pending") pen++;
+    });
+    var onN=pages.filter(function(p){return p.on;}).length;
+    var last=signals.length? signals[signals.length-1] : null;
+    $("stTotal").textContent=total;
+    $("stToday").textContent=today;
+    $("stDelivered").textContent=del;
+    $("stPending").textContent=pen;
+    $("stDeleted").textContent=deletedCount;
+    $("stPagesOn").textContent=onN+" / "+pages.length;
+    $("stLast").textContent= last? ((last.local? "SIG-"+last.id : String(last.id))+" • "+(last.time||"")) : "—";
+    $("sideTotal").textContent=total;
+    $("sideDelivered").textContent=del;
+    $("sidePagesOn").textContent=onN+" / "+pages.length;
+  }
+
+  function renderMaster(){
+    $("masterSwitch").setAttribute("aria-checked", masterOn);
+    $("autoSwitch").setAttribute("aria-checked", autoDeliver);
+    var tag=$("masterTag");
+    tag.textContent = masterOn? "MASTER ON":"MASTER OFF";
+    tag.className = "tag"+(masterOn?"":" off");
+    $("sideDot").className = "dot"+(masterOn?"":" off");
+    $("sideMasterTxt").textContent = masterOn? "ON":"OFF";
+    document.querySelectorAll("[data-toggle]").forEach(function(sw){ sw.disabled=!masterOn; });
+  }
+
+  /* ----- Derived views (Orders / Payments / Invoice / People / Lead / Inbox / Events / Control / Analysis) ----- */
+  function rowFor(p, cells){
+    var tr=document.createElement("tr");
+    tr.innerHTML='<td data-l="Page"><div class="page-cell"><span class="avatar">'+p.mark+'</span><span><b>'+p.name+'</b>'+(p.bn && p.bn!==p.name? '<span>'+p.bn+'</span>':'')+'</span></div></td>'+cells;
+    return tr;
+  }
+  function renderDerived(){
+    var ir=$("invoiceRows"); if(ir){ ir.innerHTML=""; pages.forEach(function(p){ var tr=rowFor(p,'<td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td><td data-l="Action"><button class="btn small" data-invoice="'+p.id+'">View Invoice</button></td>'); ir.appendChild(tr); }); ir.querySelectorAll("[data-invoice]").forEach(function(b){ b.addEventListener("click",function(){ var p=pageById(b.getAttribute("data-invoice")); currentInvPage=p; var slip=$("invoiceSlip"); slip.style.display="block"; $("invNo").textContent="INV-"+p.id.toUpperCase()+"-2026"; $("invPage").textContent=p.name; $("invOrders").textContent=p.orders; $("invInbox").textContent=p.inbox; $("invNote").textContent= p.orders? ("Invoice slip for "+p.orders+" orders of "+p.name+" — based on the counts above.") : (p.name+" has no orders yet, so the invoice slip is empty."); toast("Invoice slip opened for "+p.name); }); }); }
+    var pr=$("peopleRows"); if(pr){ pr.innerHTML=""; livePeople.forEach(function(r){ var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim(); var ps=String(pickVal(r,["psid","PSID"])||"").trim(); var disp=nm||ps||"—"; var pg=pageBySheetName(rowPageName(r)); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Name"><div class="page-cell"><span class="avatar">'+escapeHtml(disp.slice(0,2).toUpperCase())+'</span><span><b>'+escapeHtml(disp)+'</b>'+(ps&&nm? '<span>PSID: '+escapeHtml(ps)+'</span>':'')+'</span></div></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Stage"><span class="pill blue">'+escapeHtml(String(pickVal(r,["stage","Stage","status","Status"])||"—"))+'</span></td><td data-l="Mobile"><span class="num-cell">'+escapeHtml(String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"—"))+'</span></td><td data-l="Address">'+escapeHtml(String(pickVal(r,["address","Address","thikana"])||"—"))+'</td><td data-l="Last Message" class="muted">'+escapeHtml(String(pickVal(r,["lastMessage","Last Message","last_message","message","Message"])||"—"))+'</td>'; pr.appendChild(tr); }); if($("peopleEmpty")) $("peopleEmpty").style.display=livePeople.length? "none":"block"; if($("peopleTotal")) $("peopleTotal").textContent=livePeople.length; }
+    var lr=$("leadRows"); if(lr){ lr.innerHTML=""; var lf=($("leadFilter")? $("leadFilter").value : "all"); livePeople.filter(function(r){ var mob=String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"").trim(); if(lf==="mobile") return !!mob; if(lf==="nomobile") return !mob; return true; }).forEach(function(r){ var nm=String(pickVal(r,["customerName","Customer Name","name","Name","customer","Customer"])||"").trim(); var ps=String(pickVal(r,["psid","PSID"])||"").trim(); var disp=nm||ps||"—"; var pg=pageBySheetName(rowPageName(r)); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Name"><div class="page-cell"><span class="avatar">'+escapeHtml(disp.slice(0,2).toUpperCase())+'</span><span><b>'+escapeHtml(disp)+'</b></span></div></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Stage"><span class="pill blue">'+escapeHtml(String(pickVal(r,["stage","Stage","status","Status"])||"—"))+'</span></td><td data-l="Mobile"><span class="num-cell">'+escapeHtml(String(pickVal(r,["mobile","Mobile","phone","Phone","number","Number"])||"—"))+'</span></td><td data-l="Last Message" class="muted">'+escapeHtml(String(pickVal(r,["lastMessage","Last Message","last_message","message","Message"])||"—"))+'</td>'; lr.appendChild(tr); }); if($("leadEmpty")) $("leadEmpty").style.display=livePeople.length? "none":"block"; }
+    var ib=$("inboxRows"); if(ib){ ib.innerHTML=""; pages.forEach(function(p){ ib.appendChild(rowFor(p,'<td data-l="Inbox"><span class="num-cell">'+p.inbox+'</span>'+(pageUnreadChats(p.id)? ' <span class="pill amber">'+pageUnreadChats(p.id)+' unread chat</span>':'')+'</td><td data-l="Orders"><span class="num-cell">'+p.orders+'</span></td><td data-l="Action"><div class="row-actions"><button class="btn small primary" data-openinbox="'+p.id+'">Open Inbox</button></div></td>')); }); ib.querySelectorAll("[data-openinbox]").forEach(function(b){ b.addEventListener("click",function(){ inboxOpen=b.getAttribute("data-openinbox"); renderAll(); var v=$("inboxViewer"); if(v) v.classList.remove("min"); }); }); }
+    var payTb=$("payRows"); if(payTb){ payTb.innerHTML=""; livePayments.slice().reverse().forEach(function(r){ var pg=pageBySheetName(rowPageName(r)); var cust=String(pickVal(r,["customerName","Customer Name","customer","Customer","name","Name"])||"").trim() || String(pickVal(r,["psid","PSID"])||"").trim() || "—"; var amt=pickVal(r,["amount","Amount","tk","TK"]); var trx=pickVal(r,["trxId","TrxID","Trx ID","trxid","last4","Last 4","lastDigits"]); var stRaw=String(pickVal(r,["status","Status"])||""); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Customer"><b>'+escapeHtml(cust)+'</b></td><td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(r)||"—"))+'</td><td data-l="Amount"><span class="num-cell">'+(amt!==""? escapeHtml(String(amt))+" TK":"—")+'</span></td><td data-l="TrxID / Last 4"><span class="num-cell">'+escapeHtml(String(trx||"—"))+'</span></td><td data-l="Status">'+(stRaw? '<span class="pill blue">'+escapeHtml(stRaw)+'</span>' : statusPill({status:normStatus(stRaw)}))+'</td><td data-l="Date" class="muted">'+escapeHtml(rowDateTxt(r))+'</td>'; payTb.appendChild(tr); }); $("payCount").textContent=livePayments.length; $("payEmpty").style.display=livePayments.length?"none":"block"; }
+    var ev=$("eventRows"); if(ev){ ev.innerHTML=""; signals.slice().reverse().forEach(function(s){ var p=pageById(s.pageId); var tr=document.createElement("tr"); tr.innerHTML='<td data-l="Event"><span class="num-cell">'+escapeHtml(s.local? ("SIG-"+s.id) : String(s.id))+'</span></td><td data-l="Page">'+escapeHtml(p?p.name:(s.pageName||"—"))+'</td><td data-l="Type">'+escapeHtml(s.type)+'</td><td data-l="Customer / Model">'+escapeHtml(s.who||"—")+'</td><td data-l="Source">'+escapeHtml(s.source||"—")+'</td><td data-l="Time" class="muted">'+escapeHtml(s.time||"")+'</td><td data-l="Status">'+(s.statusRaw && !s.local? '<span class="pill blue">'+escapeHtml(s.statusRaw)+'</span>' : statusPill(s))+'</td>'; ev.appendChild(tr); }); $("eventCount2").textContent=liveEvents.length; if($("eventEmpty")) $("eventEmpty").style.display=liveEvents.length? "none":"block"; }
+    var onN=pages.filter(function(p){return p.on;}).length;
+    if($("audOn")) $("audOn").textContent=onN+" / "+pages.length;
+    if($("audOff")) $("audOff").textContent=(pages.length-onN)+" / "+pages.length;
+    var ar=$("audRows"); if(ar){ ar.innerHTML=""; pages.forEach(function(p){ var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>Audience signal '+(p.on?"is ON":"is OFF — stays OFF")+' • Inbox '+p.inbox+'</span></div>'; var sw=document.createElement("button"); sw.className="switch sm"; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked",p.on); sw.setAttribute("aria-label",p.name+" audience signal on off"); sw.disabled=!masterOn; sw.addEventListener("click",function(){ togglePage(p); }); row.appendChild(sw); ar.appendChild(row); }); }
+    var tot=signals.length, del=0, pen=0; signals.forEach(function(s){ if(s.status==="delivered") del++; if(s.status==="pending") pen++; });
+    if($("anTotal")) $("anTotal").textContent=tot;
+    if($("anDelivered")) $("anDelivered").textContent=del;
+    if($("anPending")) $("anPending").textContent=pen;
+    if($("anPagesOn")) $("anPagesOn").textContent=onN+" / "+pages.length;
+    var ab=$("anBreakdown"); if(ab){ var mx=1; pages.forEach(function(p){ var c=pageSignalCount(p.id); if(c>mx) mx=c; }); ab.innerHTML=""; pages.forEach(function(p){ var c=pageSignalCount(p.id); var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>'+c+' signals • '+pageDeliveredCount(p.id)+' delivered • '+p.orders+' orders • '+p.inbox+' inbox</span><div style="height:8px;background:var(--surface-2);border-radius:99px;margin-top:7px;overflow:hidden"><div style="height:100%;width:'+Math.round(c/mx*100)+'%;background:var(--accent);border-radius:99px"></div></div></div><span class="num-cell">'+c+'</span>'; ab.appendChild(row); }); }
+    var cr=$("controlRows"); if(cr){ cr.innerHTML=""; pages.forEach(function(p){ var row=document.createElement("div"); row.className="ctrl-row"; row.innerHTML='<div class="txt"><b>'+p.name+'</b><span>Signal '+(p.on?"is ON":"is OFF — stays OFF")+'</span></div>'; var sw=document.createElement("button"); sw.className="switch sm"; sw.setAttribute("role","switch"); sw.setAttribute("aria-checked",p.on); sw.setAttribute("aria-label",p.name+" signal on off"); sw.disabled=!masterOn; sw.addEventListener("click",function(){ togglePage(p); }); row.appendChild(sw); cr.appendChild(row); }); var ct=$("controlMasterTag"); if(ct){ ct.textContent=masterOn?"MASTER ON":"MASTER OFF"; ct.className="tag"+(masterOn?"":" off"); } }
+  }
+
+  /* ----- Orders: live rows from Sheet — no manually made orders ----- */
+  function renderOrders(){
+    var tb=$("orderRows"); if(!tb) return;
+    tb.innerHTML="";
+    $("ordCount").textContent=liveOrders.length;
+    $("ordEmpty").style.display=liveOrders.length? "none":"block";
+    liveOrders.slice().reverse().forEach(function(o){
+      var pg=pageBySheetName(rowPageName(o));
+      var cust=String(pickVal(o,["customerName","Customer Name","customer","Customer","name","Name"])||"").trim() || String(pickVal(o,["psid","PSID"])||"").trim() || "—";
+      var model=String(pickVal(o,["model","Model","bike","Bike","item","Item"])||"—");
+      var amt=pickVal(o,["price","Price","amount","Amount","total","Total"]);
+      var adv=pickVal(o,["advancePaid","Advance Paid","advance","Advance"]);
+      var mob=String(pickVal(o,["mobile","Mobile","phone","Phone","number","Number"])||"");
+      var addr=String(pickVal(o,["address","Address","deliveryAddress","Delivery Address"])||"");
+      var path=String(pickVal(o,["path","Path","type","Type","orderType","Order Type"])||"");
+      var stRaw=String(pickVal(o,["status","Status"])||"");
+      var inv=String(pickVal(o,["invoice","Invoice","invoiceNo","Invoice No","invoiceNumber"])||"");
+      var tr=document.createElement("tr");
+      tr.innerHTML='<td data-l="Customer"><b>'+escapeHtml(cust)+'</b></td>'+
+        '<td data-l="Page">'+escapeHtml(pg? pg.name : (rowPageName(o)||"—"))+'</td>'+
+        '<td data-l="Bike / Model">'+escapeHtml(model)+'</td>'+
+        '<td data-l="Amount"><span class="num-cell">'+(amt!==""? escapeHtml(String(amt))+" TK":"—")+'</span>'+(adv!==""? '<br><span class="muted" style="font-size:12px">Advance: '+escapeHtml(String(adv))+' TK</span>':'')+'</td>'+
+        '<td data-l="Mobile · Address">'+(mob? '<span class="num-cell">'+escapeHtml(mob)+'</span>':'')+(addr? (mob? '<br>':'')+'<span class="muted">'+escapeHtml(addr)+'</span>' : (mob? '' : '—'))+'</td>'+
+        '<td data-l="Path">'+(path? '<span class="pill blue">'+escapeHtml(path)+'</span>':'—')+'</td>'+
+        '<td data-l="Status">'+(stRaw? '<span class="pill blue">'+escapeHtml(stRaw)+'</span>' : '<span class="pill amber">● Processing</span>')+'</td>'+
+        '<td data-l="Invoice · Date">'+(inv? '<span class="num-cell">'+escapeHtml(inv)+'</span><br>' : '')+'<span class="muted">'+escapeHtml(rowDateTxt(o))+'</span></td>';
+      tb.appendChild(tr);
+    });
+  }
+
+  /* ----- Dashboard + sidebar counts from live data ----- */
+  function renderDash(){
+    var totalInbox=0, withInbox=0;
+    pages.forEach(function(p){ totalInbox+=p.inbox; if(p.inbox>0) withInbox++; });
+    if($("dashOrders")) $("dashOrders").textContent=orders.length;
+    if($("dashInbox")) $("dashInbox").textContent=totalInbox;
+    if($("dashInboxPages")) $("dashInboxPages").textContent=withInbox+" / "+pages.length;
+    if($("sideOrdCount")) $("sideOrdCount").textContent=liveOrders.length;
+    if($("sideInboxCount")) $("sideInboxCount").textContent=totalInbox;
+    if($("inboxTotal")) $("inboxTotal").textContent=totalInbox;
+    if($("inboxHeadTotal")) $("inboxHeadTotal").textContent=totalInbox;
+  }
+
+  /* ----- Chatbox: talk with the Page's people ----- */
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(ch){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]; }); }
+  function nowTime(){ var now=new Date(); var hh=now.getHours(), mm=("0"+now.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12; return "Today "+hh+":"+mm+" "+ap; }
+  function ensureChats(pid){
+    if(chats[pid]) return chats[pid];
+    /* Chats come only from real Sheet Inbox messages — no chat is made from signal records */
+    chats[pid]=[];
+    return chats[pid];
+  }
+  function activeChatObj(){
+    if(!inboxOpen || !activeChat) return null;
+    var list=ensureChats(inboxOpen), found=null;
+    list.forEach(function(c){ if(c.id===activeChat) found=c; });
+    return found;
+  }
+  function renderThread(){
+    var th=$("inboxThread"); if(!th) return;
+    th.innerHTML="";
+    var c=activeChatObj();
+    $("inboxThreadEmpty").style.display=c? "none":"block";
+    $("inboxMsgSend").disabled=!c;
+    $("inboxMsgInput").disabled=!c;
+    if(!c) return;
+    if(!c.msgs.length && c.lastTextFallback){
+      var fd=document.createElement("div"); fd.className="bubble";
+      fd.innerHTML=escapeHtml(c.lastTextFallback)+"<small>Last message • "+escapeHtml(c.name)+"</small>";
+      th.appendChild(fd); return;
+    }
+    if(!c.msgs.length){
+      var nd=document.createElement("div"); nd.className="empty"; nd.textContent="This contact has no messages yet — type below to start the conversation.";
+      th.appendChild(nd); return;
+    }
+    c.msgs.forEach(function(m){
+      var d=document.createElement("div");
+      d.className="bubble"+(m.who==="out"? " out":"");
+      d.innerHTML=escapeHtml(m.text)+"<small>"+escapeHtml(m.time)+(m.who==="out"? " • You":" • "+escapeHtml(c.name))+"</small>";
+      th.appendChild(d);
+    });
+    th.scrollTop=th.scrollHeight;
+  }
+  function fmtContactTime(c){
+    var ts=contactLastTs(c);
+    if(!ts) return "";
+    var d=new Date(ts), now=new Date();
+    var sameDay=d.getFullYear()===now.getFullYear() && d.getMonth()===now.getMonth() && d.getDate()===now.getDate();
+    if(sameDay){ var hh=d.getHours(), mm=("0"+d.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12; return hh+":"+mm+" "+ap; }
+    var diff=(new Date(now.getFullYear(),now.getMonth(),now.getDate()) - new Date(d.getFullYear(),d.getMonth(),d.getDate()))/86400000;
+    var days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    if(diff>0 && diff<7) return days[d.getDay()];
+    var mon=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    return d.getDate()+" "+mon[d.getMonth()];
+  }
+  function avatarHtmlFor(c){
+    if(c.avatarUrl && /^https?:\/\//i.test(c.avatarUrl)){
+      return '<span class="person-avatar"><img src="'+escapeHtml(c.avatarUrl)+'" alt="" loading="lazy" onerror="this.parentNode.textContent=\''+escapeHtml(initialsFor(c.name,c.psid))+'\'"><span class="fb-badge">f</span></span>';
+    }
+    return '<span class="person-avatar" style="background:'+avatarColorFor(c.psid||c.name)+'">'+escapeHtml(initialsFor(c.name,c.psid))+'<span class="fb-badge">f</span></span>';
+  }
+  function lastPreviewFor(c){
+    if(c.msgs && c.msgs.length){ var m=c.msgs[c.msgs.length-1]; return {text:(m.who==="out"? "You: ":"")+m.text, out:m.who==="out"}; }
+    if(c.lastTextFallback) return {text:c.lastTextFallback, out:false};
+    return {text:"No messages", out:false};
+  }
+  function renderChatbox(){
+    var v=$("inboxViewer"); if(!v) return;
+    if(!inboxOpen){ v.style.display="none"; return; }
+    var p=pageById(inboxOpen); if(!p){ v.style.display="none"; return; }
+    v.style.display="flex";
+    $("inboxViewerTitle").textContent="Chatbox — "+p.name;
+    var allForPage=ensureChats(inboxOpen);
+    $("inboxViewerCount").textContent=allForPage.length+" contact • "+p.inbox+" inbox";
+    if($("chatContactCount")) $("chatContactCount").textContent=allForPage.length;
+    if($("chatPopAvatar")) $("chatPopAvatar").textContent=p.mark;
+    $("chatPageSelect").value=inboxOpen;
+    if($("inboxPageSwitch")) $("inboxPageSwitch").value=inboxOpen;
+    var list=ensureChats(inboxOpen);
+    if(activeChat && !activeChatObj()) activeChat=null;
+    if(!activeChat){ for(var i=0;i<list.length;i++){ if(!list[i].archived){ activeChat=list[i].id; break; } } }
+    document.querySelectorAll("[data-chatfilter]").forEach(function(ch){ ch.classList.toggle("active", ch.getAttribute("data-chatfilter")===chatFilter); });
+    var q=($("chatSearch")? $("chatSearch").value.trim().toLowerCase() : "");
+    var shown=list.filter(function(c){
+      if(chatFilter==="unread" && (c.archived || !(c.unread>0))) return false;
+      if(chatFilter==="starred" && (!c.starred || c.archived)) return false;
+      if(chatFilter==="follow" && (!c.follow || c.archived)) return false;
+      if(chatFilter==="archived" && !c.archived) return false;
+      if(chatFilter==="all" && c.archived) return false;
+      if(q && c.name.toLowerCase().indexOf(q)===-1 && String(c.psid||"").toLowerCase().indexOf(q)===-1 && !(c.msgs.length && c.msgs[c.msgs.length-1].text.toLowerCase().indexOf(q)>-1) && !(c.lastTextFallback && c.lastTextFallback.toLowerCase().indexOf(q)>-1)) return false;
+      return true;
+    });
+    contactFiltered=shown;
+    var fkey=inboxOpen+"|"+chatFilter+"|"+q;
+    if(fkey!==contactFilterKey){ contactFilterKey=fkey; if(contactPreserveScroll==null) contactVisible=CONTACT_PAGE_SIZE; }
+    var pl=$("chatPeople");
+    var prevScroll=(contactPreserveScroll!=null? contactPreserveScroll : null);
+    pl.innerHTML="";
+    if(inboxReloading){
+      pl.innerHTML='<div class="contacts-spinner"><span class="spinner lg"></span><span>Loading all contacts…</span></div>';
+      $("chatPeopleEmpty").style.display="none";
+      renderQuickReplies(); renderThread(); return;
+    }
+    $("chatPeopleEmpty").style.display=shown.length? "none":"block";
+    $("chatPeopleEmpty").textContent= list.length? "No chats in this filter." : (liveLoaded? "getPeople has no contacts for this Page yet." : "There are no contacts on this Page yet — press Reload, or type a name above to start a new chat.");
+    var visibleList=shown.slice(0, contactVisible);
+    visibleList.forEach(function(c){
+      var wrap=document.createElement("div");
+      var b=document.createElement("button");
+      b.className="person"+(c.id===activeChat? " active":"")+(c.unread>0? " unread":"");
+      var prev=lastPreviewFor(c);
+      var tme=fmtContactTime(c);
+      var metaIc="";
+      if(c.starred) metaIc+=' <span class="person-meta-ic" title="Star">★</span>';
+      if(c.follow) metaIc+=' <span class="person-meta-ic" title="Follow-up">◷</span>';
+      if(c.archived) metaIc+=' <span class="person-meta-ic">Archived</span>';
+      var seenIc=(prev.out && !(c.unread>0))? '<span class="person-meta-ic" title="Seen / sent">✓✓</span>' : '';
+      b.innerHTML=avatarHtmlFor(c)+'<span class="person-main"><span class="person-top"><b>'+escapeHtml(c.name)+'</b>'+(tme? '<span class="person-time">'+escapeHtml(tme)+'</span>':'')+'</span><span class="person-last"><span class="txt">'+escapeHtml(prev.text)+'</span>'+seenIc+metaIc+(c.unread>0? '<span class="unread-dot" aria-label="Unread"></span>':'')+'</span></span>';
+      b.setAttribute("aria-label", c.name+" — "+prev.text);
+      b.addEventListener("click", function(){ activeChat=c.id; c.unread=0; renderAll(); });
+      wrap.appendChild(b);
+      if(c.id!==activeChat){ pl.appendChild(wrap); return; }
+      var acts=document.createElement("div"); acts.className="person-actions";
+      acts.innerHTML='<button class="btn small" data-a="star">'+(c.starred? "★ Starred":"☆ Star")+'</button>'+
+        '<button class="btn small" data-a="read">'+(c.unread>0? "✓ Mark Read":"Mark Unread")+'</button>'+
+        '<button class="btn small" data-a="follow">'+(c.follow? "Follow-up ✓":"Follow-up")+'</button>'+
+        '<button class="btn small" data-a="archive">'+(c.archived? "Unarchive":"Archive")+'</button>'+
+        '<button class="btn small danger" data-a="del">Delete</button>';
+      acts.querySelectorAll("[data-a]").forEach(function(ab){
+        ab.addEventListener("click", function(){
+          var a=ab.getAttribute("data-a");
+          if(a==="star"){ c.starred=!c.starred; toast(c.name+(c.starred? " — ★ Starred":" — Star removed")); }
+          else if(a==="read"){ c.unread= c.unread>0? 0:1; toast(c.name+(c.unread>0? " — marked Unread":" — marked Read")); }
+          else if(a==="follow"){ c.follow=!c.follow; toast(c.name+(c.follow? " — added to Follow-up list":" — removed from Follow-up")); }
+          else if(a==="archive"){ c.archived=!c.archived; if(c.archived && activeChat===c.id) activeChat=null; toast(c.name+(c.archived? " — Archived":" — Unarchived")); }
+          else if(a==="del"){ openModal("Delete the chat with "+c.name+"?", "This chat and all its messages will be deleted.", function(){ var arr=ensureChats(inboxOpen); var ix=arr.indexOf(c); if(ix>-1) arr.splice(ix,1); if(activeChat===c.id) activeChat=null; toast("Chat deleted"); renderAll(); }); return; }
+          renderAll();
+        });
+      });
+      wrap.appendChild(acts);
+      pl.appendChild(wrap);
+    });
+    if(shown.length>visibleList.length){
+      var more=document.createElement("div");
+      more.className="contacts-spinner"; more.id="contactsLoadMore";
+      more.innerHTML= contactLoading? '<span class="spinner"></span><span>Loading more contacts…</span>' : '<span>Scroll down to load more contacts — showing '+visibleList.length+' / '+shown.length+'</span>';
+      pl.appendChild(more);
+    } else if(shown.length>CONTACT_PAGE_SIZE){
+      var end=document.createElement("div"); end.className="contacts-end"; end.textContent="All contacts shown — "+shown.length; pl.appendChild(end);
+    }
+    if(prevScroll!=null){ pl.scrollTop=prevScroll; contactPreserveScroll=null; }
+    renderQuickReplies();
+    renderThread();
+  }
+  function loadMoreContacts(){
+    if(contactLoading || inboxReloading) return;
+    if(contactVisible>=contactFiltered.length) return;
+    contactLoading=true;
+    var pl=$("chatPeople");
+    var sentinel=$("contactsLoadMore");
+    if(sentinel) sentinel.innerHTML='<span class="spinner"></span><span>Loading more contacts…</span>';
+    var keepScroll= pl? pl.scrollTop : 0;
+    setTimeout(function(){
+      contactVisible+=CONTACT_PAGE_SIZE;
+      contactLoading=false;
+      contactPreserveScroll=keepScroll;
+      renderChatbox();
+    }, 380);
+  }
+  function reloadContacts(){
+    contactVisible=CONTACT_PAGE_SIZE; contactLoading=false; contactPreserveScroll=null;
+    toast("Reloading — loading all contacts again from getPeople…");
+    loadLive();
+  }
+
+  /* ----- Quick Reply templates (based on the business's real rules) ----- */
+  var QUICK=[
+    {label:"Welcome", text:function(p){ return "Assalamu Alaikum sir, welcome to "+p.name+". Which bike would you like to know about?"; }},
+    {label:"Ask Model", text:function(){ return "Sir, which model of bike do you want? Tell me the model and I will give you the exact price."; }},
+    {label:"Booking Rules", text:function(){ return "Sir, to order you need a 3,000 TK advance booking. The customs auction paper will be in your name, you will get an invoice, and the bike will be home delivered. The rest is paid after you receive the bike."; }},
+    {label:"EMI Rules", text:function(){ return "Sir, on EMI the downpayment is 5,000 TK, and the balance is paid at a minimum of 5,000 TK per month."; }},
+    {label:"Delivery", text:function(){ return "Sir, there is no separate delivery charge — it is included in the bike price. Home delivery is available all over Bangladesh."; }},
+    {label:"Documents", text:function(){ return "Sir, to place an order you will need — a copy of your NID, delivery address, mobile number, your photo, and a sample photo of the bike you want."; }}
+  ];
+  function renderQuickReplies(){
+    var box=$("quickReplies"); if(!box) return;
+    box.innerHTML="";
+    if(!inboxOpen) return;
+    var p=pageById(inboxOpen);
+    QUICK.forEach(function(qr){
+      var b=document.createElement("button");
+      b.className="btn small"; b.textContent=qr.label;
+      b.addEventListener("click", function(){ var inp=$("inboxMsgInput"); inp.value=qr.text(p); inp.focus(); });
+      box.appendChild(b);
+    });
+  }
+
+  /* ----- Inbox Maintenance summary ----- */
+  function pageUnreadChats(pid){ var n=0; ensureChats(pid).forEach(function(c){ if(c.unread>0 && !c.archived) n++; }); return n; }
+  function renderInboxSummary(){
+    var t=0,u=0,s=0,f=0,a=0;
+    pages.forEach(function(p){ ensureChats(p.id).forEach(function(c){ t++; if(c.unread>0 && !c.archived) u++; if(c.starred) s++; if(c.follow) f++; if(c.archived) a++; }); });
+    if($("msTotalChats")) $("msTotalChats").textContent=t;
+    if($("msUnread")) $("msUnread").textContent=u;
+    if($("msStarred")) $("msStarred").textContent=s;
+    if($("msFollow")) $("msFollow").textContent=f;
+    if($("msArchived")) $("msArchived").textContent=a;
+  }
+
+  /* ----- PC Backup: save into a user-selected PC folder (File System Access API) + restore ----- */
+  var lastPcBackupAt = null;
+  var AUTO_BACKUP_KEY = "b2b_pc_auto_backup_v1";
+  var FOLDER_NAME_KEY = "b2b_pc_backup_folder_name_v1";
+  var autoBackupOn = false;
+  var lastBackupFingerprint = null;
+  var backupDirHandle = null;
+  var backupFolderName = "";
+  var backupNeedsPermission = false;
+  var backupWriting = false;
+  try{ backupFolderName = localStorage.getItem(FOLDER_NAME_KEY) || ""; }catch(e){}
+  function folderPickerSupported(){ return typeof window.showDirectoryPicker === "function"; }
+  function persistAutoBackupState(){
+    try{ localStorage.setItem(AUTO_BACKUP_KEY, JSON.stringify({on:!!autoBackupOn, fp:lastBackupFingerprint||"", at:lastPcBackupAt||0})); }catch(e){}
+    try{ if(backupFolderName) localStorage.setItem(FOLDER_NAME_KEY, backupFolderName); }catch(e){}
+  }
+  function loadAutoBackupState(){
+    try{
+      var raw=localStorage.getItem(AUTO_BACKUP_KEY); if(!raw) return;
+      var s=JSON.parse(raw); if(!s) return;
+      autoBackupOn=!!s.on;
+      lastBackupFingerprint=s.fp? String(s.fp) : null;
+      if(s.at) lastPcBackupAt=+s.at||null;
+    }catch(e){}
+  }
+  loadAutoBackupState();
+  /* Remember the folder handle in IndexedDB so the same folder is reused after refresh (browser may still ask permission once) */
+  function backupDbOpen(){
+    return new Promise(function(resolve, reject){
+      if(!window.indexedDB){ reject(new Error("no idb")); return; }
+      var req=indexedDB.open("b2b-backup-folder", 1);
+      req.onupgradeneeded=function(){ try{ req.result.createObjectStore("handles"); }catch(e){} };
+      req.onsuccess=function(){ resolve(req.result); };
+      req.onerror=function(){ reject(req.error); };
+    });
+  }
+  function saveDirHandleToIdb(handle){
+    if(!handle) return Promise.resolve();
+    return backupDbOpen().then(function(db){
+      return new Promise(function(resolve){
+        try{
+          var tx=db.transaction("handles","readwrite"); tx.objectStore("handles").put(handle,"backupDir");
+          tx.oncomplete=function(){ resolve(); }; tx.onerror=function(){ resolve(); };
+        }catch(e){ resolve(); }
+      });
+    }).catch(function(){});
+  }
+  function loadDirHandleFromIdb(){
+    return backupDbOpen().then(function(db){
+      return new Promise(function(resolve){
+        try{
+          var tx=db.transaction("handles","readonly"); var rq=tx.objectStore("handles").get("backupDir");
+          rq.onsuccess=function(){ resolve(rq.result||null); }; rq.onerror=function(){ resolve(null); };
+        }catch(e){ resolve(null); }
+      });
+    }).catch(function(){ return null; });
+  }
+  function verifyFolderPermission(handle, withRequest){
+    if(!handle) return Promise.resolve(false);
+    var opts={mode:"readwrite"};
+    if(!handle.queryPermission) return Promise.resolve(true);
+    return handle.queryPermission(opts).then(function(state){
+      if(state==="granted") return true;
+      if(state==="prompt" && withRequest && handle.requestPermission){
+        return handle.requestPermission(opts).then(function(s2){ return s2==="granted"; }).catch(function(){ return false; });
+      }
+      return false;
+    }).catch(function(){ return true; });
+  }
+  function pickBackupFolder(){
+    if(!folderPickerSupported()){
+      showBackupSupportError();
+      toast("This browser cannot open a folder picker — please use Chrome or Edge on a computer for PC folder backup");
+      return Promise.resolve(null);
+    }
+    return window.showDirectoryPicker({mode:"readwrite"}).then(function(handle){
+      backupDirHandle=handle;
+      backupFolderName=handle.name||"Selected folder";
+      backupNeedsPermission=false;
+      persistAutoBackupState();
+      saveDirHandleToIdb(handle);
+      renderBackupInfo();
+      return handle;
+    }).catch(function(err){
+      /* User cancelled the picker — do nothing, no file goes to Downloads */
+      return null;
+    });
+  }
+  function showBackupSupportError(){
+    var n=$("backupSupportNote"); if(!n) return;
+    if(!folderPickerSupported()){
+      n.style.display="block";
+      n.textContent="Folder picker is not available in this browser / view. Open this panel in Chrome or Edge on your PC and click Backup Now — the folder picker will open there and backups will save in the folder you choose, not in Downloads.";
+    } else { n.style.display="none"; }
+  }
+  function restoreSavedFolderHandle(){
+    if(!folderPickerSupported()){ showBackupSupportError(); return; }
+    loadDirHandleFromIdb().then(function(handle){
+      if(!handle) return;
+      backupDirHandle=handle;
+      if(handle.name) backupFolderName=handle.name;
+      verifyFolderPermission(handle,false).then(function(granted){
+        backupNeedsPermission=!granted;
+        renderBackupInfo();
+      });
+      renderBackupInfo();
+    }).catch(function(){});
+  }
+  function backupFingerprint(){
+    var sig = pages.map(function(p){ return p.id+":"+(p.on?1:0)+":"+(p.inbox||0)+":"+(p.orders||0); }).join(",");
+    var payload="";
+    try{ payload=JSON.stringify({i:liveMsgs,o:liveOrders,p:livePayments,e:liveEvents,pe:livePeople,m:masterOn?1:0,a:autoDeliver?1:0,s:sig}); }catch(e){ payload=sig+"|"+liveMsgs.length; }
+    var h1=5381, h2=0;
+    for(var i=0;i<payload.length;i++){ var ch=payload.charCodeAt(i); h1=((h1*33)^ch)>>>0; h2=(h2*31+ch)>>>0; }
+    return payload.length+"-"+h1.toString(16)+"-"+h2.toString(16);
+  }
+  function pad2(n){ return ("0"+n).slice(-2); }
+  function backupCountsObj(){
+    return { inbox: liveMsgs.length, orders: liveOrders.length, payments: livePayments.length, events: liveEvents.length, people: livePeople.length };
+  }
+  function backupFilename(d){
+    return "B2B-Backup-"+d.getFullYear()+"-"+pad2(d.getMonth()+1)+"-"+pad2(d.getDate())+"_"+pad2(d.getHours())+"-"+pad2(d.getMinutes())+"-"+pad2(d.getSeconds())+".json";
+  }
+  function renderBackupInfo(){
+    var el=$("backupCounts"); if(!el) return;
+    var c=backupCountsObj();
+    var src = showingCached ? " — currently showing previously saved data, that is what will be backed up" : (liveLoaded || livePeople.length ? " — live data from Sheet" : "");
+    el.textContent = "Inbox "+c.inbox+" • Orders "+c.orders+" • Payments "+c.payments+" • Events "+c.events+" • People "+c.people+" • Including Signal state (Master "+(masterOn?"ON":"OFF")+", Page ON/OFF)"+src;
+    var li=$("backupLastInfo");
+    if(li) li.textContent = (lastPcBackupAt ? ("Last backup to PC folder: "+fmtSavedTime(lastPcBackupAt)) : "No PC backup saved yet")+" • Auto Backup "+(autoBackupOn?"ON":"OFF")+(backupFolderName? (" • Folder: "+backupFolderName):"");
+    var sw=$("autoBackupSwitch"); if(sw) sw.setAttribute("aria-checked", autoBackupOn? "true":"false");
+    var tg=$("autoBackupTag");
+    if(tg){ tg.textContent = autoBackupOn? "AUTO ON":"AUTO OFF"; tg.className = "tag"+(autoBackupOn? "":" off"); }
+    var fn=$("backupFolderName"), fi=$("backupFolderInfo"), ft=$("backupFolderTag");
+    if(fn && fi && ft){
+      if(backupDirHandle || backupFolderName){
+        fn.textContent = "Selected folder: "+(backupFolderName||backupDirHandle.name||"PC folder");
+        if(backupNeedsPermission){
+          fi.textContent = "This folder was selected before. The browser needs your permission again after a refresh — click Backup Now once to allow it, then auto backup will use this same folder.";
+          ft.textContent="NEEDS PERMISSION"; ft.className="tag amber";
+        } else if(backupDirHandle){
+          fi.textContent = "All backups — manual and auto — will be saved directly in this folder. Nothing will go to the Downloads folder. Click Select / Change Folder to use a different folder.";
+          ft.textContent="FOLDER READY"; ft.className="tag";
+        } else {
+          fi.textContent = "Folder name is remembered, but the browser needs you to pick it once in this session — click Backup Now and select the same folder.";
+          ft.textContent="PICK AGAIN ONCE"; ft.className="tag amber";
+        }
+      } else {
+        fn.textContent="No PC folder selected yet";
+        fi.textContent="Click Backup Now or Select Folder — the browser folder picker will open. Choose any folder on your PC and every backup will be saved there.";
+        ft.textContent="NO FOLDER"; ft.className="tag off";
+      }
+    }
+    showBackupSupportError();
+  }
+  function buildBackupObject(isAuto, now){
+    var c=backupCountsObj();
+    var pageOn={}, pageInbox={};
+    pages.forEach(function(p){ pageOn[p.id]=!!p.on; pageInbox[p.id]=p.inbox||0; });
+    return {
+      app:"B2B Admin Panel",
+      backupVersion:2,
+      kind:"pc-backup",
+      autoBackup: !!isAuto,
+      exportedAt: now.toISOString(),
+      exportedAtLocal: fmtSavedTime(now.getTime()),
+      dataSource: showingCached ? "browser-saved-data" : "sheet-live",
+      counts: c,
+      data:{
+        inbox: liveMsgs,
+        orders: liveOrders,
+        payments: livePayments,
+        events: liveEvents,
+        people: livePeople,
+        signalState:{
+          masterOn: !!masterOn,
+          autoDeliver: !!autoDeliver,
+          pageOn: pageOn,
+          pages: pages.map(function(p){ return {id:p.id, name:p.name, bn:p.bn, signalOn:!!p.on, inbox:p.inbox||0, orders:p.orders||0}; })
+        },
+        pageInbox: pageInbox
+      }
+    };
+  }
+  function writeBackupToFolder(autoFlag, opts){
+    var isAuto=(autoFlag===true);
+    opts=opts||{};
+    if(backupWriting) return Promise.resolve(false);
+    var c=backupCountsObj();
+    var total=c.inbox+c.orders+c.payments+c.events+c.people;
+    if(!total){
+      if(!isAuto) toast("There is no data in the panel right now — press Refresh first, and back up after live data loads");
+      return Promise.resolve(false);
+    }
+    if(!folderPickerSupported()){
+      showBackupSupportError();
+      if(!isAuto) toast("Folder picker is not available in this browser — please open the panel in Chrome or Edge on your PC. No file was sent to Downloads.");
+      return Promise.resolve(false);
+    }
+    var ensureHandle;
+    if(backupDirHandle){
+      ensureHandle = verifyFolderPermission(backupDirHandle, !isAuto).then(function(granted){
+        if(granted){ backupNeedsPermission=false; return backupDirHandle; }
+        backupNeedsPermission=true; renderBackupInfo();
+        if(isAuto){
+          /* Auto cannot show a picker / permission prompt without a user click */
+          toast("Auto Backup: folder permission is needed — click Backup Now once to allow the selected folder");
+          return null;
+        }
+        /* Manual click is a user gesture — open the picker so the user can re-select / confirm the folder */
+        return pickBackupFolder();
+      });
+    } else if(isAuto && !opts.allowPick){
+      toast("Auto Backup: no PC folder selected yet — click Backup Now and select a folder first");
+      renderBackupInfo();
+      return Promise.resolve(false);
+    } else {
+      ensureHandle = pickBackupFolder();
+    }
+    return ensureHandle.then(function(handle){
+      if(!handle) return false;
+      backupWriting=true;
+      var now=new Date();
+      var fname=backupFilename(now);
+      var text=JSON.stringify(buildBackupObject(isAuto, now), null, 2);
+      return handle.getFileHandle(fname, {create:true}).then(function(fileHandle){
+        return fileHandle.createWritable();
+      }).then(function(writable){
+        return writable.write(text).then(function(){ return writable.close(); });
+      }).then(function(){
+        backupWriting=false;
+        lastPcBackupAt=now.getTime();
+        lastBackupFingerprint=backupFingerprint();
+        persistAutoBackupState();
+        renderBackupInfo();
+        toast((isAuto? "Auto Backup saved to folder “"+backupFolderName+"”: " : "Backup saved to folder “"+backupFolderName+"”: ")+fname+" — Inbox "+c.inbox+", Orders "+c.orders+", People "+c.people);
+        return true;
+      }).catch(function(err){
+        backupWriting=false;
+        toast("Backup could not be saved in the selected folder — permission may have been removed. Click Select / Change Folder and pick the folder again.");
+        renderBackupInfo();
+        return false;
+      });
+    }).catch(function(){ backupWriting=false; return false; });
+  }
+  /* Kept name for existing callers — now writes to the selected folder, never to Downloads */
+  function downloadPcBackup(autoFlag){ return writeBackupToFolder(autoFlag); }
+  /* After live data loads, auto-backup into the same selected folder only if the data changed */
+  function maybeAutoBackup(){
+    if(!autoBackupOn) return;
+    var c=backupCountsObj();
+    if(!(c.inbox+c.orders+c.payments+c.events+c.people)) return;
+    if(backupFingerprint()===lastBackupFingerprint) return;
+    writeBackupToFolder(true);
+  }
+  function restoreFromBackupFile(file){
+    if(!file) return;
+    var reader=new FileReader();
+    reader.onload=function(){
+      try{
+        var parsed=JSON.parse(String(reader.result||""));
+        var d = parsed && parsed.data ? parsed.data : parsed;
+        if(!d || ( !Array.isArray(d.inbox) && !Array.isArray(d.orders) && !Array.isArray(d.people) )){
+          toast("This does not look like a B2B panel backup file — please choose the right file");
+          return;
+        }
+        liveMsgs = Array.isArray(d.inbox) ? d.inbox : (Array.isArray(d.liveMsgs) ? d.liveMsgs : []);
+        liveOrders = Array.isArray(d.orders) ? d.orders : (Array.isArray(d.liveOrders) ? d.liveOrders : []);
+        livePayments = Array.isArray(d.payments) ? d.payments : (Array.isArray(d.livePayments) ? d.livePayments : []);
+        liveEvents = Array.isArray(d.events) ? d.events : (Array.isArray(d.liveEvents) ? d.liveEvents : []);
+        livePeople = Array.isArray(d.people) ? d.people : (Array.isArray(d.livePeople) ? d.livePeople : []);
+        var ss = d.signalState || {};
+        var po = ss.pageOn || d.pageOn || null;
+        if(po){ pages.forEach(function(p){ if(typeof po[p.id]==="boolean") p.on=po[p.id]; }); }
+        if(Array.isArray(ss.pages)){ ss.pages.forEach(function(sp){ var p=pageById(sp.id); if(p && typeof sp.signalOn==="boolean") p.on=sp.signalOn; }); }
+        if(typeof ss.masterOn==="boolean") masterOn=ss.masterOn;
+        if(typeof ss.autoDeliver==="boolean") autoDeliver=ss.autoDeliver;
+        var pInbox = d.pageInbox || null;
+        buildLiveChats();
+        syncLiveDerived();
+        if(pInbox){ pages.forEach(function(p){ if(typeof pInbox[p.id]==="number") p.inbox=pInbox[p.id]; }); }
+        showingCached=true;
+        renderAll();
+        saveSnapshot();
+        /* saveSnapshot live hisebe bar dekhay — restore bujhate abar cached obosthay firiye deya */
+        showingCached=true; updateSavedBar();
+        var when = parsed.exportedAtLocal || (parsed.exportedAt ? fmtSavedTime(Date.parse(parsed.exportedAt)) : "");
+        setSync("saved", "Showing data restored from the PC backup file"+(when? " • Backup taken: "+when : "")+" • Inbox "+liveMsgs.length+" • Orders "+liveOrders.length+" • People "+livePeople.length);
+        toast("Restored from PC backup — Inbox "+liveMsgs.length+", Orders "+liveOrders.length+", Payments "+livePayments.length+", Events "+liveEvents.length+", People "+livePeople.length);
+      }catch(e){
+        toast("The backup file could not be read — it may be damaged or in a different format");
+      }
+    };
+    reader.onerror=function(){ toast("The backup file could not be read — please try again"); };
+    reader.readAsText(file);
+  }
+
+  function renderAll(){ renderPages(); renderSignals(); renderStats(); renderMaster(); renderDerived(); renderOrders(); renderDash(); renderChatbox(); renderInboxSummary(); renderBackupInfo(); }
+
+  /* ----- Routing: sidebar click = separate page, not everything on one page ----- */
+  var ROUTES={dashboard:1,pages:1,signals:1,orders:1,payments:1,invoice:1,people:1,lead:1,inbox:1,audience:1,events:1,control:1,analysis:1};
+  var SUBS={dashboard:"Dashboard — Dashboard overview only",pages:"Pages — Page List only",signals:"Signal Panel — Control, Stats and Signal Table",orders:"Orders — Orders page only",payments:"Payments — Payments page only",invoice:"Invoice — Invoice page only",people:"People — People page only",lead:"Lead Center — Leads page only",inbox:"Inbox — Inbox page only",audience:"Audience — Audience page only",events:"Events — Signal Events page only",control:"Control Panel — Signal ON/OFF for each Page",analysis:"Analysis — Analysis page only"};
+  function currentRoute(){ var h=(location.hash||"").replace(/^#\/?/,"").split("/")[0]; return ROUTES[h]?h:"dashboard"; }
+  function showView(){
+    var r=currentRoute();
+    document.querySelectorAll(".view").forEach(function(v){ v.classList.toggle("active", v.getAttribute("data-route")===r); });
+    document.querySelectorAll("[data-view]").forEach(function(a){ a.classList.toggle("active", a.getAttribute("data-view")===r); });
+    if($("viewSub")) $("viewSub").textContent=SUBS[r]||SUBS.dashboard;
+    window.scrollTo(0,0);
+    var sb2=$("sidebar"), sc2=$("scrim"); if(sb2) sb2.classList.remove("open"); if(sc2) sc2.classList.remove("show");
+  }
+  window.addEventListener("hashchange", showView);
+
+  /* ----- Controls ----- */
+  var sel=$("testPageSelect");
+  pages.forEach(function(p){
+    var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; sel.appendChild(o);
+  });
+
+  $("masterSwitch").addEventListener("click", function(){
+    if(masterOn){
+      masterOn=false;
+      toast("Master Signal is now OFF — no Page will send signals, and it will stay OFF");
+      renderAll();
+    } else {
+      openModal("Turn Master Signal ON again?",
+        "Turning it ON will let signals go to the Pages that are ON. To keep it OFF, press 'No, Keep It' — it will stay OFF.",
+        function(){ masterOn=true; toast("Master Signal is now ON"); renderAll(); },
+        "Yes, Turn ON");
+    }
+  });
+  $("autoSwitch").addEventListener("click", function(){
+    autoDeliver=!autoDeliver;
+    toast("Auto Deliver is now "+(autoDeliver?"ON":"OFF"));
+    renderMaster();
+  });
+
+  function sendTestSignal(p){
+    if(!masterOn){ toast("Master Signal is OFF — turn it ON first"); return; }
+    if(!p) return;
+    if(!p.on){ toast("Signal is OFF for "+p.name+" — no signal will go to this Page"); return; }
+    var now=new Date();
+    var hh=now.getHours(), mm=("0"+now.getMinutes()).slice(-2), ap=hh>=12?"PM":"AM"; hh=hh%12||12;
+    var ts={id:++seq, pageId:p.id, pageName:p.name, type:"Test Signal", who:"", source:"Panel test", time:"Today "+hh+":"+mm+" "+ap, today:true, status: autoDeliver? "delivered":"pending", statusRaw:"", local:true};
+    localSignals.push(ts); signals.push(ts);
+    toast("Test Signal sent to "+p.name+" (SIG-"+seq+")");
+    renderAll();
+  }
+  $("testSignalBtn").addEventListener("click", function(){ sendTestSignal(pageById(sel.value)); });
+
+  $("clearDeliveredBtn").addEventListener("click", function(){
+    var before=localSignals.length;
+    localSignals=localSignals.filter(function(s){ return s.status!=="delivered"; });
+    signals=signals.filter(function(s){ return !(s.local && s.status==="delivered"); });
+    toast(before-localSignals.length ? (before-localSignals.length)+" delivered test signals removed (Sheet event records stay in the Sheet)" : "There were no delivered test signals to remove");
+    renderAll();
+  });
+
+  $("refreshBtn").addEventListener("click", function(){ renderAll(); loadLive(); toast("Loading live data from the Sheet again…"); });
+
+  /* ----- PC Backup wiring (Dashboard) ----- */
+  var pcBackupBtn=$("pcBackupBtn");
+  if(pcBackupBtn) pcBackupBtn.addEventListener("click", function(){ writeBackupToFolder(false); });
+  var pickFolderBtn=$("pickFolderBtn");
+  if(pickFolderBtn) pickFolderBtn.addEventListener("click", function(){
+    pickBackupFolder().then(function(handle){
+      if(handle) toast("Backup folder selected: "+backupFolderName+" — all backups will now save in this folder");
+    });
+  });
+  var autoBackupSwitch=$("autoBackupSwitch");
+  if(autoBackupSwitch) autoBackupSwitch.addEventListener("click", function(){
+    var turningOn=!autoBackupOn;
+    if(turningOn && !backupDirHandle){
+      /* Auto needs a folder first — open the picker as part of this user click */
+      pickBackupFolder().then(function(handle){
+        if(!handle){ autoBackupOn=false; persistAutoBackupState(); renderBackupInfo(); toast("Auto Backup stayed OFF — no folder was selected"); return; }
+        autoBackupOn=true; persistAutoBackupState(); renderBackupInfo();
+        toast("Auto Backup ON — folder: "+backupFolderName+". Whenever live data changes, the backup will be saved in this folder automatically.");
+        maybeAutoBackup();
+      });
+      return;
+    }
+    if(turningOn && backupDirHandle && backupNeedsPermission){
+      verifyFolderPermission(backupDirHandle, true).then(function(granted){
+        backupNeedsPermission=!granted; renderBackupInfo();
+        if(!granted){ toast("Auto Backup needs folder permission — allow access to the selected folder, or click Select / Change Folder"); return; }
+        autoBackupOn=true; persistAutoBackupState(); renderBackupInfo();
+        toast("Auto Backup ON — backups will save automatically in folder: "+backupFolderName);
+        maybeAutoBackup();
+      });
+      return;
+    }
+    autoBackupOn=turningOn;
+    persistAutoBackupState();
+    renderBackupInfo();
+    if(autoBackupOn){
+      toast("Auto Backup ON — whenever live data changes, the backup will be saved automatically in folder: "+(backupFolderName||"selected folder"));
+      maybeAutoBackup();
+    } else {
+      toast("Auto Backup OFF — auto backup is stopped; you can still press Backup Now to save manually in the selected folder");
+    }
+  });
+  var pcRestoreBtn=$("pcRestoreBtn"), backupFileInput=$("backupFileInput");
+  if(pcRestoreBtn && backupFileInput){
+    pcRestoreBtn.addEventListener("click", function(){ backupFileInput.click(); });
+    backupFileInput.addEventListener("change", function(){
+      var f=backupFileInput.files && backupFileInput.files[0];
+      backupFileInput.value="";
+      if(f) restoreFromBackupFile(f);
+    });
+  }
+
+  /* ----- Orders: no form — orders only come live from the Sheet ----- */
+
+  /* ----- People: search ----- */
+  var pSearch=$("peopleSearch");
+  if(pSearch){ pSearch.addEventListener("input", function(){
+    var q=pSearch.value.trim().toLowerCase();
+    $("peopleRows").querySelectorAll("tr").forEach(function(tr){
+      tr.style.display=(!q || tr.textContent.toLowerCase().indexOf(q)>-1)? "":"none";
+    });
+  }); }
+
+  /* ----- Lead Center: filter ----- */
+  var lfSel=$("leadFilter");
+  if(lfSel){ lfSel.addEventListener("change", function(){ renderAll(); }); }
+
+  /* ----- Control Panel: all ON / all OFF ----- */
+  $("allOnBtn").addEventListener("click", function(){ openModal("Turn ON the signal for all Pages?", "Signals for all 6 Pages will be turned ON. To keep them OFF, press 'No, Keep It'.", function(){ pages.forEach(function(p){ p.on=true; persistSignal(p); }); toast("Signals for all Pages are ON and being saved to the Sheet"); renderAll(); }, "Yes, Turn All ON"); });
+  $("allOffBtn").addEventListener("click", function(){ pages.forEach(function(p){ p.on=false; persistSignal(p); }); toast("Signals for all Pages are OFF — saved to the Sheet, and they will stay OFF"); renderAll(); });
+
+  /* ----- Inbox: Page switch ----- */
+  var inboxSwitch=$("inboxPageSwitch");
+  pages.forEach(function(p){ var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; inboxSwitch.appendChild(o); });
+  function openInboxPage(pid){
+    inboxOpen=pid; activeChat=null; contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderAll();
+    var v=$("inboxViewer"); if(v) v.classList.remove("min");
+    toast("Inbox opened for "+pageById(pid).name);
+  }
+  inboxSwitch.addEventListener("change", function(){ openInboxPage(inboxSwitch.value); });
+  $("inboxSwitchBtn").addEventListener("click", function(){ openInboxPage(inboxSwitch.value); });
+
+  /* ----- Chatbox wiring ----- */
+  var chatSel=$("chatPageSelect");
+  pages.forEach(function(p){ var o=document.createElement("option"); o.value=p.id; o.textContent=p.name; chatSel.appendChild(o); });
+  chatSel.addEventListener("change", function(){ inboxOpen=chatSel.value; activeChat=null; contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderAll(); toast("Chatbox opened for "+pageById(inboxOpen).name); });
+  if($("chatReloadBtn")) $("chatReloadBtn").addEventListener("click", reloadContacts);
+  if($("chatListReloadBtn")) $("chatListReloadBtn").addEventListener("click", reloadContacts);
+  var chatPeopleEl=$("chatPeople");
+  if(chatPeopleEl){ chatPeopleEl.addEventListener("scroll", function(){
+    if(chatPeopleEl.scrollTop + chatPeopleEl.clientHeight >= chatPeopleEl.scrollHeight - 90) loadMoreContacts();
+  }); }
+  $("inboxClose").addEventListener("click", function(){ inboxOpen=null; renderChatbox(); });
+  $("chatMinBtn").addEventListener("click", function(){ $("inboxViewer").classList.toggle("min"); });
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape" && inboxOpen){ inboxOpen=null; renderChatbox(); } });
+  $("newChatBtn").addEventListener("click", function(){
+    if(!inboxOpen) return;
+    var name=$("newChatName").value.trim() || "New Customer";
+    var c={id:"c"+(++chatSeq), name:name, psid:name, unread:0, starred:false, archived:false, follow:false, msgs:[], lastTs:Date.now(), avatarUrl:"", lastTextFallback:""};
+    ensureChats(inboxOpen).unshift(c);
+    activeChat=c.id;
+    $("newChatName").value="";
+    renderChatbox();
+    toast("New chat started with "+name);
+  });
+  function sendChatMsg(){
+    var c=activeChatObj(); if(!c) return;
+    var txt=$("inboxMsgInput").value.trim(); if(!txt) return;
+    c.msgs.push({who:"out", text:txt, time:nowTime()});
+    var arr=ensureChats(inboxOpen); var ix=arr.indexOf(c); if(ix>0){ arr.splice(ix,1); arr.unshift(c); }
+    $("inboxMsgInput").value="";
+    renderChatbox();
+    /* The real reply is sent via Apps Script + logged in Sheet Inbox */
+    var psid=c.psid || c.name;
+    apiPost({action:"sendChatMessage", psid:psid, message:txt})
+      .then(function(res){
+        if(res && res.ok){ toast("Reply sent and logged in Sheet Inbox"); }
+        else { toast("The reply is showing in the panel, but could not be sent to the Sheet — try the connection again"); }
+      })
+      .catch(function(){ toast("The reply is showing in the panel, but the Sheet connection was not available"); });
+  }
+  $("inboxMsgSend").addEventListener("click", sendChatMsg);
+  $("inboxMsgInput").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); sendChatMsg(); } });
+
+  /* ----- Chatbox maintenance wiring: filter, search, mark all Read ----- */
+  document.querySelectorAll("[data-chatfilter]").forEach(function(ch){
+    ch.addEventListener("click", function(){ chatFilter=ch.getAttribute("data-chatfilter"); contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderChatbox(); });
+  });
+  var chatSearchEl=$("chatSearch");
+  if(chatSearchEl){ chatSearchEl.addEventListener("input", function(){ contactVisible=CONTACT_PAGE_SIZE; contactFilterKey=""; renderChatbox(); }); }
+  $("markAllReadBtn").addEventListener("click", function(){
+    if(!inboxOpen) return;
+    ensureChats(inboxOpen).forEach(function(c){ c.unread=0; });
+    toast("All chats for "+pageById(inboxOpen).name+" marked as Read");
+    renderAll();
+  });
+
+  /* ----- Invoice: download ----- */
+  $("invDownload").addEventListener("click", function(){
+    if(!currentInvPage){ toast("View a Page's invoice first"); return; }
+    var p=currentInvPage;
+    var txt="B2B Admin Panel — Invoice Slip\nInvoice No: INV-"+p.id.toUpperCase()+"-2026\nPage: "+p.name+"\nTotal Orders (Sheet Live): "+p.orders+"\nInbox (Sheet Live): "+p.inbox+"\nSource: Google Sheet (Apps Script Version 47)\n";
+    var blob=new Blob([txt],{type:"text/plain;charset=utf-8"});
+    var a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="invoice-"+p.id+".txt"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 2000);
+    toast("Invoice downloaded for "+p.name);
+  });
+
+  /* ----- Day / Dark Mode ----- */
+  function renderTheme(){
+    var dark=document.documentElement.getAttribute("data-theme")==="dark";
+    var b=$("themeBtn");
+    b.textContent = dark? "🌙 Dark Mode" : "☀ Day Mode";
+    b.setAttribute("aria-pressed", dark);
+  }
+  $("themeBtn").addEventListener("click", function(){
+    var dark=document.documentElement.getAttribute("data-theme")==="dark";
+    document.documentElement.setAttribute("data-theme", dark? "light":"dark");
+    renderTheme();
+    toast(dark? "Day Mode ON — light theme" : "Dark Mode ON — press the button again to return to Day Mode");
+  });
+  renderTheme();
+
+  /* ----- Modal ----- */
+  var pendingAction=null;
+  function openModal(title, text, fn, okLabel){
+    $("modalTitle").textContent=title; $("modalText").textContent=text;
+    $("modalOk").textContent = okLabel || "Yes, Delete";
+    pendingAction=fn; $("modalBack").classList.add("open");
+  }
+  $("modalCancel").addEventListener("click", function(){ $("modalBack").classList.remove("open"); pendingAction=null; });
+  $("modalBack").addEventListener("click", function(e){ if(e.target===this){ this.classList.remove("open"); pendingAction=null; } });
+  $("modalOk").addEventListener("click", function(){
+    $("modalBack").classList.remove("open");
+    if(pendingAction){ var f=pendingAction; pendingAction=null; f(); }
+  });
+
+  /* ----- Mobile sidebar ----- */
+  var sb=$("sidebar"), scrim=$("scrim");
+  $("menuBtn").addEventListener("click", function(){ sb.classList.add("open"); scrim.classList.add("show"); });
+  scrim.addEventListener("click", function(){ sb.classList.remove("open"); scrim.classList.remove("show"); });
+  sb.querySelectorAll("a").forEach(function(a){ a.addEventListener("click", function(){ sb.classList.remove("open"); scrim.classList.remove("show"); }); });
+  /* Active state comes from hashchange / showView — clicking will not cause a scroll jump */
+
+  /* Show saved data first — the page will not show 0 on open, then live is tried */
+  var hadCacheOnLoad = loadCachedSnapshot();
+  restoreSavedFolderHandle();
+  renderAll();
+  if(hadCacheOnLoad){
+    setSync("saved", "Live not available — showing previously saved data • Saved at: "+fmtSavedTime(cacheSavedAt)+" — trying live now");
+    updateSavedBar();
+  }
+  showView();
+  loadLive();
+})();
+</script>
+</body>
+</html>
