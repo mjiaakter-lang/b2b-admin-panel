@@ -1444,6 +1444,15 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
 .ap-photo-card .meta b{display:block;color:var(--ink);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #apPhotoModal .ph-modal-body{overflow-y:auto;overflow-x:hidden}
 #apPhotoModal .ph-modal-card{overflow-x:hidden}
+.ap-section{border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-2);display:grid;gap:10px;min-width:0}
+.ap-section .fld{display:grid;gap:5px;min-width:0}
+.ap-section .fld label{font-size:12.5px;font-weight:700;color:var(--muted)}
+.ap-section textarea,.ap-section input[type="text"]{width:100%;max-width:none}
+.ap-section textarea{font:inherit;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px;line-height:1.5;resize:vertical}
+.ap-section .ap-switch-row{padding:4px 0}
+.ap-notpub{background:var(--amber-soft);color:#7a4a06;border:1px solid #ecd9a0;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;line-height:1.55}
+html[data-theme="dark"] .ap-notpub{color:#f3d48a;border-color:#5c4718}
+.ap-notpub b{font-weight:800}
 @media (max-width:980px){.ap-layout{grid-template-columns:1fr}}
 @media (max-width:620px){.ap-page-grid{grid-template-columns:1fr}.ap-post-body{grid-template-columns:1fr}.ap-post-body img{width:100%;height:auto;max-height:220px}.ap-selected-photo{flex-wrap:wrap}.ap-selected-photo img{width:100%;height:auto;max-height:220px}.ap-target{flex-wrap:wrap}}
 
@@ -2560,11 +2569,11 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       <section class="view" data-route="auto-post">
         <div class="view-head"><h2>Auto Post</h2><p>Schedule Page posts from one panel. A post can be scheduled only after you approve its exact text, shared-library photo, Pages, date and time, and Messenger button setting. Text and photo only — video cannot be created or scheduled here.</p></div>
 
-        <div class="ap-guard" role="note"><b>Safety guard:</b> nothing is eligible to go out automatically until the exact post below is approved. Changing the text, photo, selected Pages, schedule, or Messenger button after approval cancels that approval. A post is shown as <b>Posted</b> only for a Page where a real post ID has been recorded; a failed Page keeps its reason and can be retried without sending again to a Page that already posted.</div>
+        <div class="ap-guard" role="note"><b>Safety guard:</b> nothing is eligible to go out automatically until the exact post below is approved. Changing the text, photo, selected Pages, schedule, Messenger button, EMI + Booking wording, or SEO keywords after approval cancels that approval. A post is shown as <b>Posted</b> only for a Page where a real post ID has been recorded; a failed Page keeps its reason and can be retried without sending again to a Page that already posted. <b>Publishing to a real Page is not connected in this panel yet — backend publish pending:</b> a scheduled or approved post is saved in this panel only and does <b>not</b> appear on the Page until a real Page post ID is recorded for it.</div>
 
         <div class="grid-stats" aria-label="Auto Post summary">
           <div class="stat"><div class="num" id="apStatDraft">0</div><div class="lbl">Draft Posts</div><div class="hint">Not approved or not scheduled</div></div>
-          <div class="stat"><div class="num" id="apStatScheduled">0</div><div class="lbl">Scheduled Posts</div><div class="hint">Approved and waiting for their time</div></div>
+          <div class="stat"><div class="num" id="apStatScheduled">0</div><div class="lbl">Scheduled Posts</div><div class="hint">Approved in this panel — not published to the Page yet</div></div>
           <div class="stat"><div class="num" id="apStatPosted">0</div><div class="lbl">Posted Page Results</div><div class="hint">Counted only with a recorded post ID</div></div>
           <div class="stat"><div class="num" id="apStatFailed">0</div><div class="lbl">Failed Page Results</div><div class="hint">Each one shows its reason and Retry</div></div>
         </div>
@@ -2584,8 +2593,49 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
                   </div>
                   <button class="btn primary" type="button" id="apGenerateTextBtn">Generate Text</button>
                 </div>
-                <div class="hint">Generate Text builds a short draft from the selected photo's model, that model's real list price, and the selected Page(s) only. It never adds advance, booking or other business-process details, and it never posts by itself — review and edit the text, then approve the exact post.</div>
+                <div class="hint">Generate Text builds a short draft from the selected photo's model, that model's real list price, and the selected Page(s). It also adds the EMI + Booking lines and the SEO keywords from the sections below — the EMI / booking wording is your exact wording from those boxes, or the short default line when a box is blank; no amount or term is ever invented, and no internal business-process details are added. It never posts by itself — review and edit the text, then approve the exact post.</div>
                 <div class="ap-status" id="apGenStatus" role="status" aria-live="polite"></div>
+              </div>
+
+              <div class="ap-field" id="apEmiBookingSection">
+                <label>EMI + Booking — in the post</label>
+                <div class="ap-section">
+                  <div class="ap-switch-row">
+                    <div class="txt"><b>EMI line</b><span>Generate Text adds a short line so readers know this bike can be taken on EMI.</span></div>
+                    <span class="tag" id="apEmiTag">ON</span>
+                    <button class="switch" id="apEmiSwitch" type="button" role="switch" aria-checked="true" aria-label="Include the EMI line in generated text"></button>
+                  </div>
+                  <input type="text" id="apEmiText" placeholder="Your exact EMI line (optional) — e.g. This bike is also available on EMI." aria-label="EMI line wording — your exact wording">
+                  <div class="ap-switch-row">
+                    <div class="txt"><b>Booking line</b><span>Generate Text adds a short line so readers know this bike can also be taken on booking.</span></div>
+                    <span class="tag" id="apBookingTag">ON</span>
+                    <button class="switch" id="apBookingSwitch" type="button" role="switch" aria-checked="true" aria-label="Include the booking line in generated text"></button>
+                  </div>
+                  <input type="text" id="apBookingText" placeholder="Your exact booking line (optional) — e.g. Booking is also available for this bike." aria-label="Booking line wording — your exact wording">
+                  <div class="hint">Write the exact EMI or booking terms in these boxes only if you want those terms in the post. No amount and no term is added by the panel, and no internal business details are ever added. Leave a box blank and Generate Text uses the short default line in the placeholder, in the selected language. After Generate Text, the lines are part of the post text above and can be edited there too.</div>
+                </div>
+              </div>
+
+              <div class="ap-field" id="apSeoSection">
+                <label>SEO Keywords — Google &amp; Facebook</label>
+                <div class="ap-section">
+                  <div class="fld">
+                    <label for="apGoogleKeywords">Google keywords</label>
+                    <textarea id="apGoogleKeywords" rows="2" placeholder="Google keywords, separated by commas" aria-label="Google SEO keywords, separated by commas"></textarea>
+                  </div>
+                  <div class="fld">
+                    <label for="apFacebookKeywords">Facebook keywords</label>
+                    <textarea id="apFacebookKeywords" rows="2" placeholder="Facebook keywords or hashtags, separated by commas" aria-label="Facebook SEO keywords, separated by commas"></textarea>
+                  </div>
+                  <div class="ap-switch-row">
+                    <div class="txt"><b>Include keywords in generated text</b><span>Generate Text adds the keywords left in these boxes to the end of the post text — Facebook keywords as hashtags, Google keywords as a Keywords line.</span></div>
+                    <span class="tag" id="apSeoTag">ON</span>
+                    <button class="switch" id="apSeoSwitch" type="button" role="switch" aria-checked="true" aria-label="Include SEO keywords in generated text"></button>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn small primary" type="button" id="apSuggestKeywordsBtn">Suggest Keywords from Model</button></div>
+                  <div class="hint">Suggestions are built only from the selected model's name, its brand, and its real list price — nothing else is invented. Edit or remove any keyword in the boxes; only the keywords left there are added to the post text, and you can edit them again in the post text after Generate Text.</div>
+                  <div class="ap-status" id="apSeoStatus" role="status" aria-live="polite"></div>
+                </div>
               </div>
 
               <div class="ap-field">
@@ -2635,6 +2685,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
               <div class="panel-body">
                 <div class="ap-preview-list" id="apPreviewList"></div>
                 <div class="ap-approval-list" id="apApprovalList"></div>
+                <div class="ap-notpub" id="apNotPublishedNote" style="margin:0 0 12px"><b>Not published to Page yet — backend publish pending.</b> Approving or scheduling here does not put this post on any Page. It will show as Posted only after a real Page post ID is recorded for that Page.</div>
                 <p class="muted" style="margin:0;font-size:12.5px;line-height:1.5">Approval code: <b id="apApprovalCode">—</b><br><span id="apApprovalWhen">No approval recorded for the current exact post.</span></p>
               </div>
             </div>
@@ -2658,7 +2709,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
             </div>
             <div class="ap-post-list" id="apPostList"></div>
             <div class="empty" id="apPostEmpty">No Auto Posts yet — compose the first post above. Nothing is pre-filled or invented.</div>
-            <p class="muted" style="margin:12px 0 0;font-size:12.5px;line-height:1.5">Delivery is tracked separately for every Page. Retry is offered only on a failed Page result and queues only that Page; a Page already marked Posted is never queued again.</p>
+            <p class="muted" style="margin:12px 0 0;font-size:12.5px;line-height:1.5">Delivery is tracked separately for every Page. Retry is offered only on a failed Page result and queues only that Page; a Page already marked Posted is never queued again. <b>Not published to Page yet — backend publish pending:</b> scheduled and approved posts below are saved in this panel only and are not on the Page until a real Page post ID is recorded for that Page.</p>
           </div>
         </div>
 
@@ -14514,9 +14565,10 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   var apComposerStatus={kind:"", text:""};
   var apGenLang="en";
   var apGenStatus={kind:"", text:""};
+  var apSeoStatus={kind:"", text:""};
 
   function apNewDraftState(){
-    return {id:"", text:"", photo:null, pageIds:[], scheduleAt:"", messengerEnabled:true, approvedFingerprint:"", approvedAt:""};
+    return {id:"", text:"", photo:null, pageIds:[], scheduleAt:"", messengerEnabled:true, approvedFingerprint:"", approvedAt:"", emiEnabled:true, emiText:"", bookingEnabled:true, bookingText:"", googleKeywords:"", facebookKeywords:"", seoEnabled:true, seoFor:""};
   }
   function apClone(v){ return JSON.parse(JSON.stringify(v==null? null:v)); }
   function apCanonicalPageIds(ids){
@@ -14544,7 +14596,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   }
   function apFingerprintFor(d){
     if(!d) return "";
-    var payload={text:String(d.text||""), photoLink:d.photo? String(d.photo.link||""):"", photoModel:d.photo? String(d.photo.model||""):"", photoFile:d.photo? String(d.photo.fileName||""):"", pageIds:apCanonicalPageIds(d.pageIds), scheduleAt:String(d.scheduleAt||""), messengerEnabled:d.messengerEnabled!==false};
+    var payload={text:String(d.text||""), photoLink:d.photo? String(d.photo.link||""):"", photoModel:d.photo? String(d.photo.model||""):"", photoFile:d.photo? String(d.photo.fileName||""):"", pageIds:apCanonicalPageIds(d.pageIds), scheduleAt:String(d.scheduleAt||""), messengerEnabled:d.messengerEnabled!==false, emiEnabled:d.emiEnabled!==false, emiText:String(d.emiText||""), bookingEnabled:d.bookingEnabled!==false, bookingText:String(d.bookingText||""), googleKeywords:String(d.googleKeywords||""), facebookKeywords:String(d.facebookKeywords||""), seoEnabled:d.seoEnabled!==false};
     return apHash(JSON.stringify(payload));
   }
   function apMessengerBinding(pageId, enabled){
@@ -14557,11 +14609,16 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   function apNormalizeTarget(raw, pageId, post){
     raw=(raw && typeof raw==="object")? raw:{};
     var status=["draft","scheduled","posted","failed"].indexOf(raw.status)>-1? raw.status:"draft";
+    var postId=String(raw.postId||"").trim();
+    /* Honest status: a target is Posted ONLY when a real Page post ID was
+       recorded for it. A saved "posted" with no post ID (for example from an
+       older save) is downgraded — never shown as Posted. */
+    if(status==="posted" && !postId) status=(post && post.status==="scheduled")? "scheduled":"draft";
     var enabled=post && post.messengerEnabled!==false;
     return {
       status:status,
       reason:String(raw.reason||""),
-      postId:String(raw.postId||""),
+      postId:postId,
       attempts:(raw.attempts!=null && !isNaN(+raw.attempts))? +raw.attempts:0,
       lastAttemptAt:raw.lastAttemptAt||"",
       messenger:enabled? apMessengerBinding(pageId,true):null
@@ -14576,6 +14633,14 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       pageIds:apCanonicalPageIds(raw.pageIds),
       scheduleAt:String(raw.scheduleAt||""),
       messengerEnabled:raw.messengerEnabled==null? true:!!raw.messengerEnabled,
+      emiEnabled:raw.emiEnabled==null? true:!!raw.emiEnabled,
+      emiText:String(raw.emiText||""),
+      bookingEnabled:raw.bookingEnabled==null? true:!!raw.bookingEnabled,
+      bookingText:String(raw.bookingText||""),
+      googleKeywords:String(raw.googleKeywords||""),
+      facebookKeywords:String(raw.facebookKeywords||""),
+      seoEnabled:raw.seoEnabled==null? true:!!raw.seoEnabled,
+      seoFor:String(raw.seoFor||""),
       status:["draft","scheduled","posted","failed"].indexOf(raw.status)>-1? raw.status:"draft",
       approvedFingerprint:String(raw.approvedFingerprint||""),
       approvedAt:String(raw.approvedAt||""),
@@ -14590,7 +14655,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   }
   function apSerializePost(post){ return apClone(apNormalizePost(post)); }
   function apSerializeDraft(d){
-    return {id:String(d.id||""), text:String(d.text||""), photo:apPhotoSlim(d.photo), pageIds:apCanonicalPageIds(d.pageIds), scheduleAt:String(d.scheduleAt||""), messengerEnabled:d.messengerEnabled!==false, approvedFingerprint:String(d.approvedFingerprint||""), approvedAt:String(d.approvedAt||"")};
+    return {id:String(d.id||""), text:String(d.text||""), photo:apPhotoSlim(d.photo), pageIds:apCanonicalPageIds(d.pageIds), scheduleAt:String(d.scheduleAt||""), messengerEnabled:d.messengerEnabled!==false, approvedFingerprint:String(d.approvedFingerprint||""), approvedAt:String(d.approvedAt||""), emiEnabled:d.emiEnabled!==false, emiText:String(d.emiText||""), bookingEnabled:d.bookingEnabled!==false, bookingText:String(d.bookingText||""), googleKeywords:String(d.googleKeywords||""), facebookKeywords:String(d.facebookKeywords||""), seoEnabled:d.seoEnabled!==false, seoFor:String(d.seoFor||"")};
   }
   function autoPostDataForStorage(){
     return {posts:autoPostPosts.map(apSerializePost), pageOn:apClone(autoPostPageOn), draft:apSerializeDraft(apDraft), seq:autoPostSeq, genLang:apGenLang};
@@ -14611,7 +14676,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     if(v.seq!=null && !isNaN(+v.seq)) autoPostSeq=Math.max(autoPostSeq, +v.seq);
     if(v.draft && typeof v.draft==="object"){
       var nd=apNewDraftState();
-      nd.id=String(v.draft.id||""); nd.text=String(v.draft.text||""); nd.photo=apPhotoSlim(v.draft.photo); nd.pageIds=apCanonicalPageIds(v.draft.pageIds); nd.scheduleAt=String(v.draft.scheduleAt||""); nd.messengerEnabled=v.draft.messengerEnabled==null? true:!!v.draft.messengerEnabled; nd.approvedFingerprint=String(v.draft.approvedFingerprint||""); nd.approvedAt=String(v.draft.approvedAt||"");
+      nd.id=String(v.draft.id||""); nd.text=String(v.draft.text||""); nd.photo=apPhotoSlim(v.draft.photo); nd.pageIds=apCanonicalPageIds(v.draft.pageIds); nd.scheduleAt=String(v.draft.scheduleAt||""); nd.messengerEnabled=v.draft.messengerEnabled==null? true:!!v.draft.messengerEnabled; nd.approvedFingerprint=String(v.draft.approvedFingerprint||""); nd.approvedAt=String(v.draft.approvedAt||""); nd.emiEnabled=v.draft.emiEnabled==null? true:!!v.draft.emiEnabled; nd.emiText=String(v.draft.emiText||""); nd.bookingEnabled=v.draft.bookingEnabled==null? true:!!v.draft.bookingEnabled; nd.bookingText=String(v.draft.bookingText||""); nd.googleKeywords=String(v.draft.googleKeywords||""); nd.facebookKeywords=String(v.draft.facebookKeywords||""); nd.seoEnabled=v.draft.seoEnabled==null? true:!!v.draft.seoEnabled; nd.seoFor=String(v.draft.seoFor||"");
       apDraft=nd;
       if(apBuilt) apLoadDraftIntoForm();
     }
@@ -14620,12 +14685,16 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   try{ var apRaw=localStorage.getItem(AUTOPOST_KEY); if(apRaw){ var apParsed=JSON.parse(apRaw); if(apParsed) applyAutoPostPayload(apParsed); } }catch(e){}
 
   function apFindPost(id){ for(var i=0;i<autoPostPosts.length;i++) if(autoPostPosts[i].id===id) return autoPostPosts[i]; return null; }
+  function apTargetIsPosted(t){
+    /* Posted means one thing only: a real Page post ID was recorded. */
+    return !!(t && t.status==="posted" && String(t.postId||"").trim());
+  }
   function apOverallStatus(post){
     if(!post) return "draft";
     var targets=post.pageIds.map(function(pid){ return post.targets[pid]||{status:"draft"}; });
     if(targets.some(function(t){ return t.status==="failed"; })) return "failed";
-    if(targets.length && targets.every(function(t){ return t.status==="posted"; })) return "posted";
-    if(post.status==="scheduled" || targets.some(function(t){ return t.status==="scheduled" || t.status==="posted"; })) return "scheduled";
+    if(targets.length && targets.every(apTargetIsPosted)) return "posted";
+    if(post.status==="scheduled" || targets.some(function(t){ return t.status==="scheduled" || apTargetIsPosted(t); })) return "scheduled";
     return "draft";
   }
   function apStatusPill(status){
@@ -14643,11 +14712,19 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     var t=$("apText"), s=$("apScheduleAt");
     if(t) apDraft.text=t.value;
     if(s) apDraft.scheduleAt=s.value;
+    var em=$("apEmiText"); if(em) apDraft.emiText=em.value;
+    var bk=$("apBookingText"); if(bk) apDraft.bookingText=bk.value;
+    var gk=$("apGoogleKeywords"); if(gk) apDraft.googleKeywords=gk.value;
+    var fk=$("apFacebookKeywords"); if(fk) apDraft.facebookKeywords=fk.value;
   }
   function apLoadDraftIntoForm(){
     var t=$("apText"), s=$("apScheduleAt");
     if(t) t.value=apDraft.text||"";
     if(s) s.value=apDraft.scheduleAt||"";
+    var em=$("apEmiText"); if(em) em.value=apDraft.emiText||"";
+    var bk=$("apBookingText"); if(bk) bk.value=apDraft.bookingText||"";
+    var gk=$("apGoogleKeywords"); if(gk) gk.value=apDraft.googleKeywords||"";
+    var fk=$("apFacebookKeywords"); if(fk) fk.value=apDraft.facebookKeywords||"";
   }
   function apSetComposerStatus(kind, text){
     apComposerStatus={kind:kind||"", text:text||""};
@@ -14662,16 +14739,132 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
      price comes only from priceForModelName() — the panel's real price list
      for that exact model — and the Page wording comes only from the selected
      Page(s). No price is ever invented: a model with no listed price blocks
-     generation. The templates carry no advance, booking, EMI, payment,
-     document, paper or delivery-process wording and no discount, urgency or
-     other clickbait claims — organic Page posts never carry business-process
-     details. Generating only fills the composer textarea and clears any old
+     generation. The draft also carries the EMI + Booking section: one short
+     EMI line and one short booking line, each either the owner's exact
+     wording typed in the composer or a short default line with NO amount —
+     the panel never invents an EMI or booking amount or term, and never adds
+     the internal investment or paid-order-only processing details. At the
+     end it adds the SEO keywords left in the Google / Facebook keyword
+     boxes (auto-suggested only from the model, its brand and its real
+     price, and owner-editable). No discount, urgency or other clickbait
+     claims. Generating only fills the composer textarea and clears any old
      approval: it never approves, schedules or posts by itself. */
   function apSetGenStatus(kind, text){
     apGenStatus={kind:kind||"", text:text||""};
     var el=$("apGenStatus"); if(!el) return;
     if(!kind){ el.className="ap-status"; el.textContent=""; return; }
     el.className="ap-status show "+kind; el.textContent=text||"";
+  }
+  function apSetSeoStatus(kind, text){
+    apSeoStatus={kind:kind||"", text:text||""};
+    var el=$("apSeoStatus"); if(!el) return;
+    if(!kind){ el.className="ap-status"; el.textContent=""; return; }
+    el.className="ap-status show "+kind; el.textContent=text||"";
+  }
+  /* ----- EMI + Booking lines -----
+     The owner's exact wording from the composer boxes wins. A blank box
+     falls back to one short default line in the generated-text language —
+     it names EMI / booking only and carries no amount and no term, because
+     the panel never invents one. A line switched OFF is left out entirely. */
+  function apEmiLineText(){
+    if(apDraft.emiEnabled===false) return "";
+    var own=String(apDraft.emiText||"").trim(); if(own) return own;
+    if(apGenLang==="bn") return "এই বাইকটি EMI-তেও নেওয়া যাবে।";
+    if(apGenLang==="bl") return "Ei bike ti EMI teo neoa jabe.";
+    return "This bike is also available on EMI.";
+  }
+  function apBookingLineText(){
+    if(apDraft.bookingEnabled===false) return "";
+    var own=String(apDraft.bookingText||"").trim(); if(own) return own;
+    if(apGenLang==="bn") return "এই বাইকটি বুকিং করেও নেওয়া যাবে।";
+    if(apGenLang==="bl") return "Ei bike ti booking koreo neoa jabe.";
+    return "Booking is also available for this bike.";
+  }
+  /* ----- SEO keywords -----
+     Suggestions come only from the selected model, the brand that model
+     belongs to in the panel's own price list, and that model's real list
+     price. The owner can edit or remove every suggestion; Generate Text
+     uses only what is left in the two boxes. */
+  function apBrandForModel(model){
+    var m=String(model||"").trim().toLowerCase(); if(!m) return "";
+    if(m.indexOf("ktm")>-1) return "KTM";
+    if(m.indexOf("gixxer")===0 || m.indexOf("gsx")===0 || m.indexOf("hayate")===0) return "Suzuki";
+    if(m.indexOf("pulsar")===0 || m.indexOf("discover")===0 || m.indexOf("ns ")===0) return "Bajaj";
+    if(m.indexOf("apache")===0 || m.indexOf("rtr")===0 || m.indexOf("tvs")===0) return "TVS";
+    if(m.indexOf("hunk")===0 || m.indexOf("ignitor")===0) return "Hero";
+    if(m.indexOf("cb")===0 || m.indexOf("cbr")===0 || m.indexOf("x-blade")===0) return "Honda";
+    if(m.indexOf("fz")===0 || m.indexOf("fazer")===0 || m.indexOf("r15")===0 || m.indexOf("mt ")===0 || m.indexOf("m-slaz")===0) return "Yamaha";
+    return "";
+  }
+  function apHashtag(word){
+    var s=String(word||"").trim(); if(!s) return "";
+    if(s.charAt(0)==="#") s=s.slice(1);
+    s=s.replace(/[^A-Za-z0-9]+/g,"");
+    return s? "#"+s:"";
+  }
+  function apSplitKeywords(v){ return String(v||"").split(",").map(function(x){ return x.trim(); }).filter(Boolean); }
+  function apSuggestedKeywords(model, price){
+    var brand=apBrandForModel(model);
+    var priceTxt=(typeof fmtTk==="function")? fmtTk(price) : Number(price||0).toLocaleString("en-IN");
+    var google=[], facebook=[], seen={};
+    function addG(x){ var k=x.toLowerCase(); if(x && !seen["g:"+k]){ seen["g:"+k]=1; google.push(x); } }
+    function addF(x){ var h=apHashtag(x), k=h.toLowerCase(); if(h && !seen["f:"+k]){ seen["f:"+k]=1; facebook.push(h); } }
+    addG(model+" price in Bangladesh");
+    if(brand) addG(brand+" "+model);
+    addG("Buy "+model+" in Bangladesh");
+    if(price>0) addG(model+" price "+priceTxt+" TK");
+    addF(model);
+    if(brand) addF(brand+" Bike");
+    if(brand) addF(brand+" "+model);
+    addF("Bike Bangladesh");
+    return {google:google.join(", "), facebook:facebook.join(", "), brand:brand};
+  }
+  function apKeywordKey(model, price){ return String(model||"")+"|"+String(price||0); }
+  /* Fill the keyword boxes with suggestions for the current model. With
+     force=false this only happens when the boxes do not already hold
+     suggestions for this exact model + price — so keywords the owner
+     edited or removed for this model are never silently put back. */
+  function apAutoSuggestKeywords(force){
+    var v=apGenValidation();
+    /* Only the model + its real price are needed for suggestions — a Page
+       selection is not, so a missing Page never blocks them. */
+    if(!v.model || !(v.price>0)) return false;
+    var key=apKeywordKey(v.model, v.price);
+    if(!force && apDraft.seoFor===key) return false;
+    var s=apSuggestedKeywords(v.model, v.price);
+    apDraft.googleKeywords=s.google; apDraft.facebookKeywords=s.facebook; apDraft.seoFor=key;
+    return true;
+  }
+  function apKeywordLines(){
+    if(apDraft.seoEnabled===false) return [];
+    var lines=[];
+    var fb=apSplitKeywords(apDraft.facebookKeywords).map(apHashtag).filter(Boolean);
+    if(fb.length) lines.push(fb.join(" "));
+    var g=apSplitKeywords(apDraft.googleKeywords);
+    if(g.length) lines.push("Keywords: "+g.join(", "));
+    return lines;
+  }
+  function apSuggestKeywords(){
+    apSyncDraftFromForm();
+    var v=apGenValidation();
+    if(!v.model || !(v.price>0)){
+      var miss=v.missing.filter(function(x){ return x.indexOf("at least one Page")!==0; });
+      apSetSeoStatus("err", "Cannot suggest keywords yet — missing: "+(miss.length? miss.join("; ") : "the model's real list price")+". Choose the model's real photo from the shared library first; no keyword was invented.");
+      return;
+    }
+    var s=apSuggestedKeywords(v.model, v.price);
+    var hasCustom=(String(apDraft.googleKeywords||"").trim() && apDraft.googleKeywords!==s.google) || (String(apDraft.facebookKeywords||"").trim() && apDraft.facebookKeywords!==s.facebook);
+    var apply=function(){
+      apDraft.googleKeywords=s.google; apDraft.facebookKeywords=s.facebook; apDraft.seoFor=apKeywordKey(v.model, v.price);
+      persistAutoPost(); renderAutoPost();
+      apSetSeoStatus("ok", "Keywords suggested from the model ("+v.model+")"+(s.brand? ", its brand ("+s.brand+")":"")+" and its real list price. Edit or remove any of them — Generate Text adds only what is left in the boxes.");
+      toast("SEO keywords suggested — edit or remove any of them");
+    };
+    if(hasCustom){
+      openModal("Replace the current keywords?", "Suggest Keywords will replace the keywords now in the Google and Facebook boxes with suggestions built from "+v.model+", its brand and its real list price. The post text, photo, Pages and schedule stay as they are.", apply, "Yes, Suggest Keywords");
+      return;
+    }
+    apply();
   }
   function apGenValidation(){
     var missing=[];
@@ -14696,13 +14889,26 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
   function apGeneratedTextFor(model, price, pageNames){
     var priceTxt=(typeof fmtTk==="function")? fmtTk(price) : Number(price||0).toLocaleString("en-IN");
     var singlePage=pageNames.length===1? pageNames[0]:"";
+    var lines=[model];
     if(apGenLang==="bn"){
-      return singlePage? (model+"\nদাম: "+priceTxt+" টাকা\nবিস্তারিত জানতে "+singlePage+" পেজে মেসেজ করুন।") : (model+"\nদাম: "+priceTxt+" টাকা\nবিস্তারিত জানতে আমাদের মেসেজ করুন।");
+      lines.push("দাম: "+priceTxt+" টাকা");
+    } else if(apGenLang==="bl"){
+      lines.push("Dam: "+priceTxt+" TK");
+    } else {
+      lines.push("Price: "+priceTxt+" TK");
     }
-    if(apGenLang==="bl"){
-      return singlePage? (model+"\nDam: "+priceTxt+" TK\nBistarito jante "+singlePage+" Page e message korun.") : (model+"\nDam: "+priceTxt+" TK\nBistarito jante amader message korun.");
+    var emiLine=apEmiLineText(); if(emiLine) lines.push(emiLine);
+    var bookingLine=apBookingLineText(); if(bookingLine) lines.push(bookingLine);
+    if(apGenLang==="bn"){
+      lines.push(singlePage? ("বিস্তারিত জানতে "+singlePage+" পেজে মেসেজ করুন।") : "বিস্তারিত জানতে আমাদের মেসেজ করুন।");
+    } else if(apGenLang==="bl"){
+      lines.push(singlePage? ("Bistarito jante "+singlePage+" Page e message korun.") : "Bistarito jante amader message korun.");
+    } else {
+      lines.push(singlePage? ("Message "+singlePage+" for details.") : "Message us for details.");
     }
-    return singlePage? (model+"\nPrice: "+priceTxt+" TK\nMessage "+singlePage+" for details.") : (model+"\nPrice: "+priceTxt+" TK\nMessage us for details.");
+    var kw=apKeywordLines();
+    if(kw.length){ lines.push(""); kw.forEach(function(l){ lines.push(l); }); }
+    return lines.join("\n");
   }
   function apDoGenerateText(){
     apSyncDraftFromForm();
@@ -14713,13 +14919,20 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     }
     var pageNames=apDraft.pageIds.map(function(pid){ var pg=pageByIdEarly(pid); return pg? pg.name:pid; });
     var priceTxt=(typeof fmtTk==="function")? fmtTk(v.price) : Number(v.price||0).toLocaleString("en-IN");
+    /* First visit for this model + price: fill the keyword boxes with the
+       auto-suggestions, so the generated text carries them. Keywords the
+       owner already edited or removed for this model are left as they are. */
+    var suggestedNow=apAutoSuggestKeywords(false);
     apDraft.text=apGeneratedTextFor(v.model, v.price, pageNames);
+    var kwCount=apSplitKeywords(apDraft.googleKeywords).length+apSplitKeywords(apDraft.facebookKeywords).length;
+    var emiBookingNote=(apEmiLineText() || apBookingLineText())? " It includes the EMI + Booking line(s) from the section below" : " The EMI + Booking lines are switched OFF, so none were added";
+    var seoNote=apDraft.seoEnabled===false? " SEO keywords are switched OFF, so none were added to the text." : (kwCount? (" "+kwCount+" SEO keyword(s) from the Google / Facebook boxes are at the end of the text"+(suggestedNow? " (auto-suggested just now from the model, its brand and its real price — edit or remove them in the boxes and generate again if you change them)":"")+".") : " No SEO keywords were added because both keyword boxes are empty — press Suggest Keywords from Model to fill them, then generate again.");
     /* Generated text is a fresh draft: any earlier approval no longer applies */
     apDraft.approvedFingerprint=""; apDraft.approvedAt="";
     persistAutoPost();
     var t=$("apText"); if(t) t.value=apDraft.text;
     renderAutoPost();
-    apSetGenStatus("ok", "Text generated for "+v.model+" at its real list price of "+priceTxt+" TK, from the selected photo and Page selection"+(pageNames.length===1? " ("+pageNames[0]+")":" ("+pageNames.length+" Pages — the text names no single Page, so every copy stays correct)")+". It is in the composer for you to edit. It is NOT approved and will not post — approve the exact post, then schedule it.");
+    apSetGenStatus("ok", "Text generated for "+v.model+" at its real list price of "+priceTxt+" TK, from the selected photo and Page selection"+(pageNames.length===1? " ("+pageNames[0]+")":" ("+pageNames.length+" Pages — the text names no single Page, so every copy stays correct)")+"."+emiBookingNote+"."+seoNote+" It is in the composer for you to edit. It is NOT approved and will not post — approve the exact post, then schedule it.");
     toast("Post text generated — review and edit it in the composer");
   }
   function apGenerateText(){
@@ -14785,6 +14998,23 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       });
     }
     if($("apGenerateTextBtn")) $("apGenerateTextBtn").addEventListener("click", apGenerateText);
+    if($("apSuggestKeywordsBtn")) $("apSuggestKeywordsBtn").addEventListener("click", apSuggestKeywords);
+    [["apEmiText","emiText"],["apBookingText","bookingText"],["apGoogleKeywords","googleKeywords"],["apFacebookKeywords","facebookKeywords"]].forEach(function(pair){
+      var el=$(pair[0]); if(!el) return;
+      el.addEventListener("input", function(){ apDraft[pair[1]]=el.value; persistAutoPost(); renderAutoPost(); });
+    });
+    if($("apEmiSwitch")) $("apEmiSwitch").addEventListener("click", function(){
+      apSyncDraftFromForm(); apDraft.emiEnabled=apDraft.emiEnabled===false? true:false; persistAutoPost(); renderAutoPost();
+      toast(apDraft.emiEnabled? "EMI line ON — Generate Text will add it to the post text" : "EMI line OFF for this post");
+    });
+    if($("apBookingSwitch")) $("apBookingSwitch").addEventListener("click", function(){
+      apSyncDraftFromForm(); apDraft.bookingEnabled=apDraft.bookingEnabled===false? true:false; persistAutoPost(); renderAutoPost();
+      toast(apDraft.bookingEnabled? "Booking line ON — Generate Text will add it to the post text" : "Booking line OFF for this post");
+    });
+    if($("apSeoSwitch")) $("apSeoSwitch").addEventListener("click", function(){
+      apSyncDraftFromForm(); apDraft.seoEnabled=apDraft.seoEnabled===false? true:false; persistAutoPost(); renderAutoPost();
+      toast(apDraft.seoEnabled? "SEO keywords ON — Generate Text will add them at the end of the post text" : "SEO keywords OFF for this post");
+    });
     var genLangEl=$("apGenLang");
     if(genLangEl){
       genLangEl.value=apGenLang;
@@ -14826,9 +15056,10 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     apLoadDraftIntoForm();
   }
   function apResetComposer(){
-    apDraft=apNewDraftState(); /* New posts always start with the Messenger button ON */
+    apDraft=apNewDraftState(); /* New posts always start with the Messenger button ON, the EMI + Booking lines ON, and SEO keywords ON */
     apComposerStatus={kind:"", text:""};
     apGenStatus={kind:"", text:""};
+    apSeoStatus={kind:"", text:""};
     persistAutoPost(); apLoadDraftIntoForm(); renderAutoPost();
   }
   function apRenderSelectedPhoto(){
@@ -14883,7 +15114,9 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       {done:apDraft.pageIds.length>0, label:apDraft.pageIds.length? (apDraft.pageIds.length+" Page(s) selected — the post goes only to those Pages") : "At least one Page selected"},
       {done:!!(d && !isNaN(d.getTime()) && d.getTime()>Date.now()), label:"Future schedule date and time is set"},
       apDraft.messengerEnabled!==false? {done:apDraft.pageIds.length>0, label:"Send Message button ON — each copy opens Messenger to its own Page"} : {done:true, label:"Send Message button OFF by the owner's choice for this post"},
-      {done:apDraft.pageIds.length>0 && apDraft.pageIds.every(function(pid){ return !!autoPostPageOn[pid]; }), label:"Auto Post is ON for every selected Page"}
+      {done:apDraft.pageIds.length>0 && apDraft.pageIds.every(function(pid){ return !!autoPostPageOn[pid]; }), label:"Auto Post is ON for every selected Page"},
+      {done:true, label:(apDraft.emiEnabled!==false || apDraft.bookingEnabled!==false)? ("EMI + Booking lines: "+[apDraft.emiEnabled!==false? "EMI line ON ("+(String(apDraft.emiText||"").trim()? "your exact wording":"short default line, no amount")+")":"EMI line OFF", apDraft.bookingEnabled!==false? "Booking line ON ("+(String(apDraft.bookingText||"").trim()? "your exact wording":"short default line, no amount")+")":"Booking line OFF"].join(" • ")+" — put into the post text by Generate Text") : "EMI + Booking lines OFF by the owner's choice for this post"},
+      {done:true, label:apDraft.seoEnabled===false? "SEO keywords OFF by the owner's choice for this post" : ("SEO keywords: "+(apSplitKeywords(apDraft.googleKeywords).length+apSplitKeywords(apDraft.facebookKeywords).length)+" in the Google / Facebook boxes — Generate Text adds them at the end of the post text")}
     ];
     var box=$("apApprovalList");
     if(box) box.innerHTML=items.map(function(it){ return '<div class="ap-approval-item'+(it.done? " done":"")+'"><span class="mark">'+(it.done? "✓":"!")+'</span><span>'+escapeHtml(it.label)+'</span></div>'; }).join("");
@@ -14912,10 +15145,19 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       var row=sw.parentElement, tg=row? row.querySelector("[data-ap-switch-tag]"):null;
       if(tg){ tg.textContent=on? "ON":"OFF"; tg.className="tag"+(on? "":" off"); }
     });
+    [["apEmiText","emiText"],["apBookingText","bookingText"],["apGoogleKeywords","googleKeywords"],["apFacebookKeywords","facebookKeywords"]].forEach(function(pair){
+      var el=$(pair[0]); if(el && document.activeElement!==el && el.value!==String(apDraft[pair[1]]||"")) el.value=apDraft[pair[1]]||"";
+    });
+    [["apEmiSwitch","apEmiTag","emiEnabled"],["apBookingSwitch","apBookingTag","bookingEnabled"],["apSeoSwitch","apSeoTag","seoEnabled"]].forEach(function(trio){
+      var sw=$(trio[0]), tg=$(trio[1]), on=apDraft[trio[2]]!==false;
+      if(sw) sw.setAttribute("aria-checked", on? "true":"false");
+      if(tg){ tg.textContent=on? "ON":"OFF"; tg.className="tag"+(on? "":" off"); }
+    });
     apRenderPreview();
     apRenderApproval();
     if(apComposerStatus.kind) apSetComposerStatus(apComposerStatus.kind, apComposerStatus.text);
     if(apGenStatus.kind) apSetGenStatus(apGenStatus.kind, apGenStatus.text);
+    if(apSeoStatus.kind) apSetSeoStatus(apSeoStatus.kind, apSeoStatus.text);
     var glSync=$("apGenLang"); if(glSync && document.activeElement!==glSync) glSync.value=apGenLang;
     renderAutoPostStats();
     renderAutoPostList();
@@ -14924,7 +15166,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     var draft=0, scheduled=0, posted=0, failed=0;
     autoPostPosts.forEach(function(post){
       var st=apOverallStatus(post); if(st==="draft") draft++; if(st==="scheduled") scheduled++;
-      post.pageIds.forEach(function(pid){ var tg=post.targets[pid]; if(!tg) return; if(tg.status==="posted") posted++; if(tg.status==="failed") failed++; });
+      post.pageIds.forEach(function(pid){ var tg=post.targets[pid]; if(!tg) return; if(apTargetIsPosted(tg)) posted++; if(tg.status==="failed") failed++; });
     });
     if($("apStatDraft")) $("apStatDraft").textContent=draft;
     if($("apStatScheduled")) $("apStatScheduled").textContent=scheduled;
@@ -14950,20 +15192,28 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       var due=post.scheduleAt && new Date(post.scheduleAt).getTime()<=Date.now();
       var targetsHtml=post.pageIds.map(function(pid){
         var pg=pageByIdEarly(pid), tg=post.targets[pid]||{status:"draft", reason:"", postId:"", attempts:0, messenger:apMessengerBinding(pid, post.messengerEnabled!==false)};
+        /* Defensive, at render time too: no recorded post ID, never Posted. */
+        if(tg.status==="posted" && !String(tg.postId||"").trim()){ var tgCopy={}; for(var tk in tg) tgCopy[tk]=tg[tk]; tgCopy.status=(post.status==="scheduled"? "scheduled":"draft"); tg=tgCopy; }
         var label=tg.status;
         var extra="";
-        if(tg.status==="scheduled" && !autoPostPageOn[pid]){ label="Scheduled — Blocked"; extra='<span class="reason">Auto Post is OFF for this Page — this copy will not go out while the switch stays OFF.</span>'; }
-        else if(tg.status==="scheduled" && due){ label="Due — Awaiting Confirmation"; extra='<span>Its time has arrived in this panel. It is not marked Posted without a recorded post ID.</span>'; }
+        if(tg.status==="scheduled"){
+          label="Not published to Page yet — backend publish pending";
+          extra='<span><b>Not published to Page yet — backend publish pending.</b> This copy is saved in this panel only and is not on the Page until a real Page post ID is recorded for it.</span>';
+          if(!autoPostPageOn[pid]) extra+='<span class="reason">Auto Post is OFF for this Page — this copy will not go out while the switch stays OFF.</span>';
+          else if(due) extra+='<span>Its scheduled time has arrived in this panel; publishing is still pending, so it is still not Posted.</span>';
+        }
         if(tg.status==="failed" && tg.reason) extra='<span class="reason">Reason: '+escapeHtml(tg.reason)+'</span>';
         if(tg.postId) extra+='<span>Post ID: '+escapeHtml(tg.postId)+'</span>';
         if(tg.attempts) extra+='<span>Attempts: '+tg.attempts+(tg.lastAttemptAt? " • Last: "+escapeHtml(fmtSavedTime(Date.parse(tg.lastAttemptAt)||tg.lastAttemptAt)):"")+'</span>';
         var msgLine=post.messengerEnabled!==false? '<span>Send Message → '+(pg? escapeHtml(pg.name):"this Page")+' Messenger (same Page only)</span>' : '<span>No Messenger button on this copy</span>';
         var retry=(tg.status==="failed" && !tg.postId)? '<button class="btn small primary" type="button" data-ap-retry="'+escapeHtml(post.id)+':'+escapeHtml(pid)+'">Retry This Page Only</button>':'';
-        return '<div class="ap-target"><span class="avatar">'+escapeHtml(pg? pg.mark:"—")+'</span><div class="txt"><b>'+escapeHtml(pg? pg.name:"Unknown Page")+'</b>'+msgLine+extra+'</div>'+apStatusPill(tg.status==="scheduled" && (!autoPostPageOn[pid] || due)? "scheduled":tg.status)+(label!==tg.status? '<span class="pill amber">'+escapeHtml(label)+'</span>':'')+retry+'</div>';
+        return '<div class="ap-target"><span class="avatar">'+escapeHtml(pg? pg.mark:"—")+'</span><div class="txt"><b>'+escapeHtml(pg? pg.name:"Unknown Page")+'</b>'+msgLine+extra+'</div>'+apStatusPill(tg.status)+(label!==tg.status && tg.status!=="scheduled"? '<span class="pill amber">'+escapeHtml(label)+'</span>':'')+retry+'</div>';
       }).join("");
-      var hasPosted=post.pageIds.some(function(pid){ return post.targets[pid] && post.targets[pid].status==="posted"; });
-      card.innerHTML='<div class="ap-post-head"><div class="main"><b>'+escapeHtml(apFormatSchedule(post.scheduleAt))+'</b><span>'+escapeHtml(post.id)+' • Created '+(post.createdAt? escapeHtml(fmtSavedTime(Date.parse(post.createdAt)||post.createdAt)):"—")+' • Approval '+(post.approvedFingerprint? escapeHtml(post.approvedFingerprint):"not recorded")+'</span></div>'+apStatusPill(overall)+'</div>'+
-        '<div class="ap-post-body">'+(post.photo? '<img src="'+escapeHtml(apPhotoThumb(post.photo))+'" alt="Shared-library photo for '+escapeHtml(post.photo.model||"this post")+'">' : '<div class="ap-preview-photo-missing" style="margin:0">No photo</div>')+'<div><div class="ap-post-text">'+escapeHtml(post.text||"")+'</div><div class="ap-post-meta">'+(post.photo? 'Photo: '+escapeHtml(post.photo.model||"")+(post.photo.fileName? " • "+escapeHtml(post.photo.fileName):"")+'<br>' : '')+'Messenger button: '+(post.messengerEnabled!==false? 'ON — bound separately to each Page below':'OFF')+'</div></div></div>'+
+      var hasPosted=post.pageIds.some(function(pid){ return apTargetIsPosted(post.targets[pid]); });
+      var notPubBanner=hasPosted && overall==="posted"? "" : '<div class="ap-notpub" style="margin-top:10px"><b>Not published to Page yet — backend publish pending.</b> This post is saved in this panel only; it appears on a Page only after a real Page post ID is recorded for that Page.</div>';
+      var emiSeoMeta='<br>EMI + Booking: '+((post.emiEnabled!==false || post.bookingEnabled!==false)? [post.emiEnabled!==false? "EMI line ON":"EMI line OFF", post.bookingEnabled!==false? "Booking line ON":"Booking line OFF"].join(" • ") : "OFF")+'<br>SEO keywords: '+(post.seoEnabled===false? "OFF" : (((post.googleKeywords||"").trim()? "Google: "+escapeHtml(post.googleKeywords.trim()):"")+" "+((post.facebookKeywords||"").trim()? "Facebook: "+escapeHtml(post.facebookKeywords.trim()):"")).trim() || "none saved with this post");
+      card.innerHTML='<div class="ap-post-head"><div class="main"><b>'+escapeHtml(apFormatSchedule(post.scheduleAt))+'</b><span>'+escapeHtml(post.id)+' • Created '+(post.createdAt? escapeHtml(fmtSavedTime(Date.parse(post.createdAt)||post.createdAt)):"—")+' • Approval '+(post.approvedFingerprint? escapeHtml(post.approvedFingerprint):"not recorded")+'</span></div>'+apStatusPill(overall)+'</div>'+notPubBanner+
+        '<div class="ap-post-body">'+(post.photo? '<img src="'+escapeHtml(apPhotoThumb(post.photo))+'" alt="Shared-library photo for '+escapeHtml(post.photo.model||"this post")+'">' : '<div class="ap-preview-photo-missing" style="margin:0">No photo</div>')+'<div><div class="ap-post-text">'+escapeHtml(post.text||"")+'</div><div class="ap-post-meta">'+(post.photo? 'Photo: '+escapeHtml(post.photo.model||"")+(post.photo.fileName? " • "+escapeHtml(post.photo.fileName):"")+'<br>' : '')+'Messenger button: '+(post.messengerEnabled!==false? 'ON — bound separately to each Page below':'OFF')+emiSeoMeta+'</div></div></div>'+
         '<div class="ap-targets">'+targetsHtml+'</div>'+
         '<div class="ap-actions">'+(hasPosted? '<span class="muted" style="font-size:12.5px">A posted copy is locked — it cannot be edited or sent again from here.</span>' : '<button class="btn small" type="button" data-ap-edit="'+escapeHtml(post.id)+'">'+(overall==="draft"? "Edit Draft":"Edit / Reopen")+'</button>')+(overall==="scheduled"? '<button class="btn small" type="button" data-ap-cancel="'+escapeHtml(post.id)+'">Cancel Schedule</button>':'')+'</div>';
       list.appendChild(card);
@@ -14982,7 +15232,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     if(post && post.pageIds.some(function(pid){ return post.targets[pid] && post.targets[pid].status==="posted"; })){ apSetComposerStatus("err","This post already has a posted Page copy, so it is locked and cannot be saved as an edited draft."); return; }
     if(!post){ post=apNormalizePost({id:"AP-"+Date.now().toString(36).toUpperCase()+"-"+(++autoPostSeq), createdAt:now}); autoPostPosts.unshift(post); }
     var oldTargets=post.targets||{};
-    post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.status="draft"; post.updatedAt=now;
+    post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.emiEnabled=apDraft.emiEnabled!==false; post.emiText=apDraft.emiText||""; post.bookingEnabled=apDraft.bookingEnabled!==false; post.bookingText=apDraft.bookingText||""; post.googleKeywords=apDraft.googleKeywords||""; post.facebookKeywords=apDraft.facebookKeywords||""; post.seoEnabled=apDraft.seoEnabled!==false; post.seoFor=apDraft.seoFor||""; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.status="draft"; post.updatedAt=now;
     post.targets={}; post.pageIds.forEach(function(pid){ var old=oldTargets[pid]; post.targets[pid]=apNormalizeTarget(old && old.status!=="posted"? old:{status:"draft"}, pid, post); post.targets[pid].status="draft"; post.targets[pid].messenger=apMessengerBinding(pid, post.messengerEnabled!==false); });
     apDraft.id=post.id;
     persistAutoPost(); renderAutoPost();
@@ -14996,7 +15246,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     apDraft.approvedAt=new Date().toISOString();
     var post=apDraft.id? apFindPost(apDraft.id):null;
     if(post && apOverallStatus(post)!=="posted"){
-      post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.updatedAt=apDraft.approvedAt;
+      post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.emiEnabled=apDraft.emiEnabled!==false; post.emiText=apDraft.emiText||""; post.bookingEnabled=apDraft.bookingEnabled!==false; post.bookingText=apDraft.bookingText||""; post.googleKeywords=apDraft.googleKeywords||""; post.facebookKeywords=apDraft.facebookKeywords||""; post.seoEnabled=apDraft.seoEnabled!==false; post.seoFor=apDraft.seoFor||""; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.updatedAt=apDraft.approvedAt;
       post.targets={}; post.pageIds.forEach(function(pid){ post.targets[pid]=apNormalizeTarget({status:"draft"}, pid, post); });
     }
     persistAutoPost(); renderAutoPost();
@@ -15012,13 +15262,13 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     var post=apDraft.id? apFindPost(apDraft.id):null;
     if(post && post.pageIds.some(function(pid){ return post.targets[pid] && post.targets[pid].status==="posted"; })){ apSetComposerStatus("err","Schedule blocked — this post already has a posted Page copy, and a posted copy is never sent again."); return; }
     if(!post){ post=apNormalizePost({id:"AP-"+Date.now().toString(36).toUpperCase()+"-"+(++autoPostSeq), createdAt:now}); autoPostPosts.unshift(post); }
-    post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.status="scheduled"; post.updatedAt=now;
+    post.text=apDraft.text; post.photo=apPhotoSlim(apDraft.photo); post.pageIds=apCanonicalPageIds(apDraft.pageIds); post.scheduleAt=apDraft.scheduleAt; post.messengerEnabled=apDraft.messengerEnabled!==false; post.emiEnabled=apDraft.emiEnabled!==false; post.emiText=apDraft.emiText||""; post.bookingEnabled=apDraft.bookingEnabled!==false; post.bookingText=apDraft.bookingText||""; post.googleKeywords=apDraft.googleKeywords||""; post.facebookKeywords=apDraft.facebookKeywords||""; post.seoEnabled=apDraft.seoEnabled!==false; post.seoFor=apDraft.seoFor||""; post.approvedFingerprint=apDraft.approvedFingerprint; post.approvedAt=apDraft.approvedAt; post.status="scheduled"; post.updatedAt=now;
     post.targets={}; post.pageIds.forEach(function(pid){ post.targets[pid]=apNormalizeTarget({status:"scheduled"}, pid, post); });
     persistAutoPost();
     var names=post.pageIds.map(function(pid){ var pg=pageByIdEarly(pid); return pg? pg.name:pid; }).join(", ");
     apResetComposer();
-    apSetComposerStatus("ok","Scheduled for "+names+" at "+apFormatSchedule(post.scheduleAt)+". The Send Message setting saved with this post is "+(post.messengerEnabled!==false? "ON, bound to each Page's own Messenger.":"OFF."));
-    toast("Auto Post scheduled for "+names);
+    apSetComposerStatus("ok","Scheduled in this panel for "+names+" at "+apFormatSchedule(post.scheduleAt)+". Not published to Page yet — backend publish pending: this post is not on the Page and will show Posted only after a real Page post ID is recorded. The Send Message setting saved with this post is "+(post.messengerEnabled!==false? "ON, bound to each Page's own Messenger.":"OFF."));
+    toast("Auto Post scheduled in panel only — not published to the Page yet");
   }
   function apEditPost(id){
     var post=apFindPost(id); if(!post) return;
@@ -15026,7 +15276,7 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
     if(apOverallStatus(post)==="scheduled"){
       post.status="draft"; post.pageIds.forEach(function(pid){ if(post.targets[pid] && post.targets[pid].status==="scheduled") post.targets[pid].status="draft"; }); post.updatedAt=new Date().toISOString();
     }
-    apDraft={id:post.id, text:post.text||"", photo:apPhotoSlim(post.photo), pageIds:apCanonicalPageIds(post.pageIds), scheduleAt:post.scheduleAt||"", messengerEnabled:post.messengerEnabled!==false, approvedFingerprint:post.approvedFingerprint||"", approvedAt:post.approvedAt||""};
+    apDraft={id:post.id, text:post.text||"", photo:apPhotoSlim(post.photo), pageIds:apCanonicalPageIds(post.pageIds), scheduleAt:post.scheduleAt||"", messengerEnabled:post.messengerEnabled!==false, approvedFingerprint:post.approvedFingerprint||"", approvedAt:post.approvedAt||"", emiEnabled:post.emiEnabled!==false, emiText:post.emiText||"", bookingEnabled:post.bookingEnabled!==false, bookingText:post.bookingText||"", googleKeywords:post.googleKeywords||"", facebookKeywords:post.facebookKeywords||"", seoEnabled:post.seoEnabled!==false, seoFor:post.seoFor||""};
     persistAutoPost(); apLoadDraftIntoForm(); renderAutoPost();
     var top=document.querySelector('.view[data-route="auto-post"]'); if(top) top.scrollIntoView({block:"start"});
     toast("Post loaded in the composer — review the exact preview before scheduling it again");
@@ -15079,7 +15329,13 @@ html[data-theme="dark"] .ap-guard{color:#f3d48a;border-color:#5c4718}
       var card=document.createElement("button"); card.type="button"; card.className="ap-photo-card"+(apDraft.photo && apDraft.photo.link===u.link? " selected":"");
       card.innerHTML='<img src="'+escapeHtml(u.thumb || apPhotoThumb(u))+'" alt="Shared-library photo for '+escapeHtml(u.model)+'"><div class="meta"><b>'+escapeHtml(u.model)+'</b>'+escapeHtml(u.fileName||"Saved photo")+'<br>Used by: '+escapeHtml(photoPageNamesOf(u).join(", ")||"Shared library")+'</div>';
       card.addEventListener("click", function(){
-        apSyncDraftFromForm(); apDraft.photo=apPhotoSlim(u); persistAutoPost(); apClosePhotoModal(); renderAutoPost();
+        apSyncDraftFromForm(); apDraft.photo=apPhotoSlim(u);
+        /* New model selected: refresh the SEO keyword suggestions for this
+           model (its brand + real list price) unless the owner already has
+           suggestions for this exact model in the boxes. */
+        var suggested=apAutoSuggestKeywords(false);
+        persistAutoPost(); apClosePhotoModal(); renderAutoPost();
+        if(suggested) apSetSeoStatus("ok", "Keywords suggested from this model, its brand and its real list price — edit or remove any of them in the SEO Keywords boxes.");
         toast("Shared-library photo selected: "+u.model);
       });
       grid.appendChild(card);
